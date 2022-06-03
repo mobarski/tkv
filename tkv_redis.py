@@ -65,4 +65,4 @@ class TKVredis(tkv.TKV):
 		self.db.hmset(tab, {k:self.dumps(v) for k,v in data.items()})
 
 def connect(*a,**kw):
-	return CKVredis(*a,**kw)
+	return TKVredis(*a,**kw)
