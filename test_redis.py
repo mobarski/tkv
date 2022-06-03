@@ -7,5 +7,6 @@ import test
 #db = tkv_redis.connect(host='127.0.0.1') # Redis
 db = tkv_redis.connect(host='127.0.0.1', port=8888) # SSDB
 test.test1(db)
+test.test2(db)
 
 # ERROR: SSDB db.collections() -> redis.exceptions.ResponseError: wrong number of arguments

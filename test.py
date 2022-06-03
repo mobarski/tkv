@@ -30,3 +30,33 @@ def test1(db):
 	
 	assert set(db.keys('a')) == set('xyz')
 	assert set(db.keys('b')) == set('rs')
+
+def test2(db):
+	t1 = db.table('a')
+	t2 = db.table('b')
+	
+	t1.put('x',1)
+	t1.put('y',2)
+	t1.put('z',3)
+
+	t2.put('r',11)
+	t2.put('s',22)
+
+	assert t1.get('x') == 1
+	assert t1.get('y') == 2
+	assert t1.get('z') == 3
+	assert t1.get('v',-1) == -1
+	assert t2.get('r') == 11
+	assert t2.get('s') == 22
+	
+	assert t1.has('x') == True
+	assert t1.has('v') == False
+	
+	assert t1.count() == 3
+	assert t2.count() == 2
+	
+	assert t1.get_many(['x','y','z']) == [1,2,3]
+	assert t2.get_many(['r','s','t'],-1) == [11,22,-1]
+	
+	assert set(t1.keys()) == set('xyz')
+	assert set(t2.keys()) == set('rs')

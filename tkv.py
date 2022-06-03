@@ -1,5 +1,5 @@
 __author__ = 'Maciej Obarski'
-__version__ = '0.1.1'
+__version__ = '0.2.0'
 __license__ = 'MIT'
 
 # TODO: docs
@@ -56,14 +56,15 @@ class TKV:
 	# table
 	
 	def table(self, tab):
-		return KVtable(tab, self)
+		return KV(tab, self)
 
-class KVtable:
+
+from functools import partial
+class KV:
 	def __init__(self, tab, tkv):
-		self.tab = tab
-		self.tkv = tkv
-		methods = [x for x in dir(tkv) if not x.startswith('_')]
-		# TODO
+		methods = [x for x in dir(TKV) if x[0]!='_' and x not in ['tables']]
+		for m in methods:
+			setattr(self, m, partial(getattr(tkv, m), tab))
 
 # ===[ SQLite adapter ]========================================================
 
