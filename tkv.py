@@ -1,14 +1,15 @@
 __author__ = 'Maciej Obarski'
-__version__ = '0.2.3'
+__version__ = '0.2.5'
 __license__ = 'MIT'
 
-# TODO: commit!
+# TODO: SQL injection prevention !!!
+
 # TODO: docs
 # TODO: patterns working exactly the same on all DB engines
 # TODO: benchmark
-# TODO: DB client configuration via single dict and not kwargs?
-# TODO: single table mode (separate class)?
 # TODO: iterators vs lists
+# TODO: single table mode (separate class)
+# TODO: DB client configuration via single dict and not kwargs?
 
 import itertools
 from functools import partial
@@ -32,7 +33,7 @@ class TKV:
 		pass
 	def drop(self, tab):
 		pass
-	def tables(self, pattern=None):
+	def size(self, tab, pattern):
 		pass
 		
 	# extension (can be reimplemented in the child for better performance)
@@ -56,19 +57,31 @@ class TKV:
 	def values(self, tab, pattern=None):
 		return (x[1] for x in self.items(tab, pattern))
 
-	# table
-	
+	# other
+
 	def table(self, tab):
 		return KV(tab, self)
+
+	def tables(self, pattern=None):
+		pass
+	
+	def flush(self):
+		pass
+	
+	def __del__(self):
+		self.flush()
 	
 	@staticmethod
 	def group_keys(keys, pos, sep=':'):
-		return itertools.groupby(keys, lambda x:x.split(sep)[pos])
+		if isinstance(pos, int):
+			return itertools.groupby(keys, lambda x:x.split(sep)[pos])
+		else:
+			return itertools.groupby(keys, lambda x:tuple([x.split(sep)[p] for p in pos]))
 
 
 class KV:
 	def __init__(self, tab, tkv):
-		methods = [x for x in dir(TKV) if x[0]!='_' and x not in ['tables','group_keys']]
+		methods = [x for x in dir(TKV) if x[0]!='_' and x not in ['tables','group_keys','flush']]
 		for m in methods:
 			setattr(self, m, partial(getattr(tkv, m), tab))
 
@@ -128,12 +141,7 @@ class TKVlite(TKV):
 		else:
 			sql = f'select key,val from "{tab}"'
 		return ((k,self.loads(v)) for k,v in self._execute(sql))
-		
-		
-	def tables(self):
-		sql = 'select name from sqlite_master where type="table"'
-		return [x[0] for x in self._execute(sql)]
-		
+				
 		
 	def drop(self, tab):
 		self._execute(f'drop table if exists {tab}')
@@ -144,17 +152,42 @@ class TKVlite(TKV):
 		self._execute(sql, (key,))
 
 
-	def count(self, tab=None, pattern=None):
+	def count(self, tab, pattern=None):
 		if pattern:
 			sql = f'select count(*) from "{tab}" where key glob "{pattern}"'
 		else:
 			sql = f'select count(*) from "{tab}"'
 		return self._execute(sql).fetchone()[0]
 
+
+	def size(self, tab, pattern='*', with_keys=False):
+		aux = 'length(key)' if with_keys else '0'
+		if pattern=='*':
+			sql = f'select sum(length(val)+{aux}) from "{tab}"'
+		elif '*' not in pattern:
+			sql = f'select sum(length(val)+{aux}) from "{tab}" where key="{pattern}"'
+		else:
+			sql = f'select sum(length(val)+{aux}) from "{tab}" where key glob "{pattern}"'
+		try:
+			val = self._execute(sql).fetchone()[0] or 0
+		except: # TODO table not found
+			val = 0
+		return val
+
 	# extension
 
 	# TODO: optimized get_many
 	# TODO: optimized put_many
+
+	# other
+
+	def tables(self, pattern=None):
+		# TODO: pattern
+		sql = 'select name from sqlite_master where type="table"'
+		return [x[0] for x in self._execute(sql)]
+
+	def flush(self):
+		self.db.commit()
 
 	# internals
 	
