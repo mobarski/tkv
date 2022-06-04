@@ -1,9 +1,9 @@
 __author__ = 'Maciej Obarski'
-__version__ = '0.2.1'
+__version__ = '0.2.2'
 __license__ = 'MIT'
 
+# TODO: commit!
 # TODO: docs
-# TODO: KVtable
 # TODO: patterns working exactly the same on all DB engines
 # TODO: benchmark
 # TODO: DB client configuration via single dict and not kwargs?
@@ -65,6 +65,10 @@ class KV:
 		methods = [x for x in dir(TKV) if x[0]!='_' and x not in ['tables']]
 		for m in methods:
 			setattr(self, m, partial(getattr(tkv, m), tab))
+
+import itertools
+def group_keys(keys, pos=0, sep=':'):
+	return itertools.groupby(keys, lambda x:x.split(sep)[pos])
 
 # ===[ SQLite adapter ]========================================================
 
