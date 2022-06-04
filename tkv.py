@@ -1,5 +1,5 @@
 __author__ = 'Maciej Obarski'
-__version__ = '0.2.2'
+__version__ = '0.2.3'
 __license__ = 'MIT'
 
 # TODO: commit!
@@ -9,6 +9,9 @@ __license__ = 'MIT'
 # TODO: DB client configuration via single dict and not kwargs?
 # TODO: single table mode (separate class)?
 # TODO: iterators vs lists
+
+import itertools
+from functools import partial
 
 class TKV:
 
@@ -57,18 +60,18 @@ class TKV:
 	
 	def table(self, tab):
 		return KV(tab, self)
+	
+	@staticmethod
+	def group_keys(keys, pos, sep=':'):
+		return itertools.groupby(keys, lambda x:x.split(sep)[pos])
 
 
-from functools import partial
 class KV:
 	def __init__(self, tab, tkv):
-		methods = [x for x in dir(TKV) if x[0]!='_' and x not in ['tables']]
+		methods = [x for x in dir(TKV) if x[0]!='_' and x not in ['tables','group_keys']]
 		for m in methods:
 			setattr(self, m, partial(getattr(tkv, m), tab))
 
-import itertools
-def group_keys(keys, pos, sep=':'):
-	return itertools.groupby(keys, lambda x:x.split(sep)[pos])
 
 # ===[ SQLite adapter ]========================================================
 
