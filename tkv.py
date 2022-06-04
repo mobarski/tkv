@@ -1,5 +1,5 @@
 __author__ = 'Maciej Obarski'
-__version__ = '0.2.5'
+__version__ = '0.2.6'
 __license__ = 'MIT'
 
 # TODO: SQL injection prevention !!!

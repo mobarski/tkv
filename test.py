@@ -60,3 +60,26 @@ def test2(db):
 	
 	assert set(t1.keys()) == set('xyz')
 	assert set(t2.keys()) == set('rs')
+
+def all_tests(db):
+	test1(db)
+	test2(db)
+
+# =============================================================================
+
+def run_redis_test():
+	import tkv_redis
+	#db = tkv_redis.connect(host='127.0.0.1') # Redis
+	db = tkv_redis.connect(host='127.0.0.1', port=8888) # SSDB
+	# TODO: test compatibility with KeyDB
+	all_tests(db)
+
+def run_sqlite_test():
+	import tkv
+	db = tkv.connect()
+	all_tests(db)
+
+if __name__=="__main__":
+	pass # TODO: run selected tests
+	run_sqlite_test()
+
