@@ -1,5 +1,5 @@
 __author__ = 'Maciej Obarski'
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 __license__ = 'MIT'
 
 # TODO: docs
@@ -129,7 +129,6 @@ class TKVlite(TKV):
 		
 		
 	def drop(self, tab):
-		tab = _tab_to_tab(tab)
 		db._execute(f'drop table if exists {tab}')
 		self._delete('',tab,tab='meta')
 
