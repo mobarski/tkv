@@ -67,7 +67,7 @@ class KV:
 			setattr(self, m, partial(getattr(tkv, m), tab))
 
 import itertools
-def group_keys(keys, pos=0, sep=':'):
+def group_keys(keys, pos, sep=':'):
 	return itertools.groupby(keys, lambda x:x.split(sep)[pos])
 
 # ===[ SQLite adapter ]========================================================
