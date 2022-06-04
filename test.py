@@ -1,4 +1,6 @@
 
+# yep... for now this is primitive as hell
+
 def test1(db):
 
 	db.put('a','x',1)
@@ -80,6 +82,15 @@ def run_sqlite_test():
 	all_tests(db)
 
 if __name__=="__main__":
-	pass # TODO: run selected tests
-	run_sqlite_test()
-
+	import sys
+	if not sys.argv[1:]:
+		print('USAGE: test.py sqlite|redis ...', file=sys.stderr)
+		exit()
+	for arg in sys.argv[1:]:
+		fun = {
+				'sqlite':run_sqlite_test,
+				'redis':run_redis_test,
+			}.get(arg)
+		if fun:
+			print('running',fun)
+			fun()
