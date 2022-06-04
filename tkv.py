@@ -130,7 +130,6 @@ class TKVlite(TKV):
 		
 	def drop(self, tab):
 		self._execute(f'drop table if exists {tab}')
-		self._delete('',tab,tab='meta')
 
 
 	def delete(self, tab, key):
