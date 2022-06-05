@@ -39,8 +39,7 @@ class TKVredis(tkv.TKV):
 		items = ((x[0].decode(self.encoding),self.loads(x[1])) for x in items)
 		return items
 
-	def tables(self, pattern=None):
-		# TODO pattern
+	def tables(self):
 		return (x.decode(self.encoding) for x in self.db.keys())
 		
 	def drop(self, tab):

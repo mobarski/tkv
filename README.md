@@ -9,15 +9,18 @@ import tkv
 
 db = tkv.connect('my_file.sqlite')
 
+# simple usage
 db.put('my_table', 'foo', 'bar')
 x = db.get('my_table', 'foo')
 y = db.get('my_table', 'baz', -1)
 
-db.put('other_table', 'the question', {'answer':42})
-
+# table example
 tab = db.table('my_table')
 x = tab.get('foo')
 y = tab.get('baz', -1)
+
+# document store
+tab.put('my_doc', {'hello':'world'})
 
 ``` 
 

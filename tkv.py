@@ -1,5 +1,5 @@
 __author__ = 'Maciej Obarski'
-__version__ = '0.2.7'
+__version__ = '0.2.8'
 __license__ = 'MIT'
 
 # TODO: SQL injection prevention !!!
@@ -25,15 +25,15 @@ class TKV:
 		pass
 	def keys(self, tab, pattern=None):
 		pass
-	def count(self, tab, pattern=None):
-		pass
 	def items(self, tab, pattern=None):
 		pass	
+	def count(self, tab, pattern=None):
+		pass
 	def delete(self, tab, key):
 		pass
 	def drop(self, tab):
 		pass
-	def size(self, tab, pattern):
+	def size(self, tab):
 		pass
 		
 	# extension (can be reimplemented in the child for better performance)
@@ -53,16 +53,16 @@ class TKV:
 		
 	def get_dict(self, tab, keys, default=None):
 		return dict(zip(keys, self.get_many(tab, keys, default)))
-		
+
 	def values(self, tab, pattern=None):
-		return (x[1] for x in self.items(tab, pattern))
+		return (v for k,v in self.items(tab, pattern))
 
 	# other
 
 	def table(self, tab):
 		return KV(tab, self)
 
-	def tables(self, pattern=None):
+	def tables(self):
 		pass
 	
 	def flush(self):
@@ -90,8 +90,8 @@ import json
 
 class TKVlite(TKV):
 
-	def __init__(self, path=':memory:', dumps=None, loads=None):
-		self.db = sqlite3.connect(path)
+	def __init__(self, path=':memory:', dumps=None, loads=None, **kw):
+		self.db = sqlite3.connect(path, **kw)
 		self.dumps = dumps or json.dumps
 		self.loads = loads or json.loads
 
@@ -156,15 +156,9 @@ class TKVlite(TKV):
 			sql = f'select count(*) from "{tab}"'
 		return self._execute(sql).fetchone()[0]
 
-
-	def size(self, tab, pattern='*', with_keys=False):
-		aux = 'length(key)' if with_keys else '0'
-		if pattern=='*':
-			sql = f'select sum(length(val)+{aux}) from "{tab}"'
-		elif '*' not in pattern:
-			sql = f'select sum(length(val)+{aux}) from "{tab}" where key="{pattern}"'
-		else:
-			sql = f'select sum(length(val)+{aux}) from "{tab}" where key glob "{pattern}"'
+	# TODO: from metadata
+	def size(self, tab):
+		sql = f'select sum(length(val)+length(key)) from "{tab}"'
 		try:
 			val = self._execute(sql).fetchone()[0] or 0
 		except: # TODO table not found
@@ -178,8 +172,7 @@ class TKVlite(TKV):
 
 	# other
 
-	def tables(self, pattern=None):
-		# TODO: pattern
+	def tables(self):
 		sql = 'select name from sqlite_master where type="table"'
 		return [x[0] for x in self._execute(sql)]
 
