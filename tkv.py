@@ -1,5 +1,5 @@
 __author__ = 'Maciej Obarski'
-__version__ = '0.2.6'
+__version__ = '0.2.7'
 __license__ = 'MIT'
 
 # TODO: SQL injection prevention !!!
@@ -73,10 +73,7 @@ class TKV:
 	
 	@staticmethod
 	def group_keys(keys, pos, sep=':'):
-		if isinstance(pos, int):
-			return itertools.groupby(keys, lambda x:x.split(sep)[pos])
-		else:
-			return itertools.groupby(keys, lambda x:tuple([x.split(sep)[p] for p in pos]))
+		return itertools.groupby(keys, lambda x:sep.join(x.split(sep)[:pos]))
 
 
 class KV:
