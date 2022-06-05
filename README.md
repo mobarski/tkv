@@ -21,7 +21,7 @@ y = tab.get('baz', -1)
 
 # document store
 tab.put('my_doc', {'name':'foo', 'price':1.23, 'tag_ids':[1,2,3]})
-
+x = tab.get('my_doc')['name']
 ``` 
 
 # Download and Install
