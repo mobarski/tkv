@@ -31,7 +31,7 @@ import tkv_redis
 db = tkv_redis.connect(host='127.0.0.1')
 
 import tkv_mongo
-db = tkv_mongo.connect('127.0.0.1')
+db = tkv_mongo.connect('127.0.0.1', db='tkv')
 ```
 
 # Download and Install
