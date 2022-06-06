@@ -4,6 +4,10 @@ def test_engine(e, verbose=False):
 	if e == 'sqlite':
 		import tkv
 		db = tkv.connect()
+
+	elif e == 'sqlite_table':
+		import tkv
+		db = tkv.connect_table()
 		
 	elif e == 'redis':
 		import tkv_redis
