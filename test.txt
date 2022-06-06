@@ -26,32 +26,32 @@
 	>>> db.put('b','r',11)
 	>>> db.put('b','s',22)
 
-	>>> db.get('a','x') == 1
-	True
-	>>> db.get('a','y') == 2
-	True
-	>>> db.get('a','z') == 3
-	True
-	>>> db.get('b','r') == 11
-	True
-	>>> db.get('b','s') == 22
-	True
-	>>> db.get('a','v',-1) == -1
-	True
-	>>> db.get('c','v',-1) == -1
-	True
+	>>> db.get('a','x')
+	1
+	>>> db.get('a','y')
+	2
+	>>> db.get('a','z')
+	3
+	>>> db.get('b','r')
+	11
+	>>> db.get('b','s')
+	22
+	>>> db.get('a','v',-1)
+	-1
+	>>> db.get('c','v',-1)
+	-1
 
-	>>> db.has('a','x') == True
+	>>> db.has('a','x')
 	True
-	>>> db.has('a','v') == False
-	True
-	>>> db.has('c','v') == False
-	True
+	>>> db.has('a','v')
+	False
+	>>> db.has('c','v')
+	False
 
-	>>> db.count('a') == 3
-	True
-	>>> db.count('b') == 2
-	True
+	>>> db.count('a')
+	3
+	>>> db.count('b')
+	2
 
 	>>> db.get_many('a',['x','y','z']) == [1,2,3]
 	True
@@ -71,19 +71,19 @@
 	True
 
 	>>> db.put_many('c', ['u','v'], ['one','two'])
-	>>> db.get('c','u') == 'one'
-	True
-	>>> db.get('c','v') == 'two'
-	True
+	>>> db.get('c','u')
+	'one'
+	>>> db.get('c','v')
+	'two'
 	
 	>>> sorted(db.values('c')) == ['one','two']
 	True
 
 	>>> db.put_items('d', [('one',1), ('two',2), ('three',3)])
-	>>> db.get('d','one') == 1
-	True
-	>>> db.get('d','two') == 2
-	True
+	>>> db.get('d','one')
+	1
+	>>> db.get('d','two')
+	2
 	>>> sorted(db.get_items('d',['one','two','foo'],default=-1)) == [('foo',-1),('one',1),('two',2)]
 	True
 	

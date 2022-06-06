@@ -1,10 +1,9 @@
 __author__ = 'Maciej Obarski'
-__version__ = '0.4.2'
+__version__ = '0.5.0'
 __license__ = 'MIT'
 
 # TODO: single table mode (separate class)
 # TODO: benchmark
-# TODO: compression
 # TODO: patterns working exactly the same on all DB engines
 # TODO: per table compression,dumps,loads
 # TODO: docs
@@ -85,7 +84,7 @@ def not_implemented(self, method_name):
 import sqlite3
 import json
 
-class TKVlite(TKV):
+class TKVsqlite(TKV):
 
 	def __init__(self, path=':memory:', dumps=None, loads=None, **kw):
 		self.db = sqlite3.connect(path, **kw)
@@ -206,5 +205,5 @@ class TKVlite(TKV):
 
 
 def connect(*a,**kw):
-	return TKVlite(*a,**kw)
+	return TKVsqlite(*a,**kw)
 

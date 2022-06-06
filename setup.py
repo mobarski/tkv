@@ -10,6 +10,6 @@ setup(
 	author='Maciej Obarski',
 	author_email='mobarski@gmail.com',
 	license='MIT',
-	py_modules=['tkv','tkv_redis'],
+	py_modules=['tkv','tkv_redis','tkv_mongo'],
 	platforms='any',
 )
