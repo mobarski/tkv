@@ -24,7 +24,6 @@ tab.put('my_doc', {
 	'foo':'hello',
 	'bar':1.23,
 	'baz':[1,2,3],
-	'qux':{'a':1,'b':'two'},
 })
 x = tab.get('my_doc')['foo']
 ``` 
