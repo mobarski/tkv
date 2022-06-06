@@ -1,5 +1,5 @@
 __author__ = 'Maciej Obarski'
-__version__ = '0.3.0'
+__version__ = '0.4.0'
 __license__ = 'MIT'
 
 # TODO: SQL injection prevention !!!
@@ -114,7 +114,7 @@ class TKVlite(TKV):
 		try:
 			val = self._execute(sql, (key,)).fetchone()[0]
 			val = self.loads(val)
-		except: # TODO
+		except sqlite3.OperationalError:
 			val = default
 		return val
 
@@ -163,14 +163,29 @@ class TKVlite(TKV):
 		sql = f'select sum(length(val)+length(key)) from "{tab}"'
 		try:
 			val = self._execute(sql).fetchone()[0] or 0
-		except: # TODO table not found
+		except sqlite3.OperationalError:
 			val = 0
 		return val
 
 	# extension
 
-	# TODO: optimized get_many
-	# TODO: optimized put_items
+	def get_many(self, tab, keys, default=None):
+		placeholders = ','.join('?'*len(keys))
+		sql = f'select key,val from "{tab}" where key in ({placeholders})'
+		try:
+			resp = dict(self._execute(sql,keys))
+		except sqlite3.OperationalError:
+			resp = {}
+		return [self.loads(resp[k]) if k in resp else default for k in keys]
+
+	def put_items(self, tab, items):
+		sql = f'replace into "{tab}"(key,val) values(?,?)'
+		items = [(k,self.dumps(v)) for k,v in items]
+		try:
+			self._execute_many(sql, items)
+		except sqlite3.OperationalError:
+			self._create(tab)
+			self._execute_many(sql, items)
 
 	# other
 
@@ -185,6 +200,10 @@ class TKVlite(TKV):
 	
 	def _execute(self, sql, *args):
 		return self.db.execute(sql, *args)
+
+	def _execute_many(self, sql, *args):
+		return self.db.executemany(sql, *args)
+
 	
 	def _create(self, tab):
 		sql = f'create table if not exists "{tab}" (key text primary key, val) without rowid'
