@@ -1,13 +1,15 @@
 __author__ = 'Maciej Obarski'
-__version__ = '0.5.0'
+__version__ = '0.6'
 __license__ = 'MIT'
 
-# TODO: single table mode (separate class)
+# TODO: test - spaces, accents, case sensitivity
+# TODO: test - methods on non exising table
+# TODO: compression: example and test
+# TODO: table dict interface
 # TODO: benchmark
 # TODO: patterns working exactly the same on all DB engines
-# TODO: per table compression,dumps,loads
 # TODO: docs
-# TODO: tkv_mongo
+# TODO: per table compression,dumps,loads
 # TODO: tkv_snowflake
 # TODO: DB client configuration via single dict and not kwargs?
 
@@ -72,7 +74,7 @@ class TKV:
 
 class KV:
 	def __init__(self, tab, tkv):
-		methods = [x for x in dir(TKV) if x[0]!='_' and x not in ['tables','group_keys','flush']]
+		methods = [x for x in dir(TKV) if x[0]!='_' and x not in ['tables','group_keys','flush','db','tab']]
 		for m in methods:
 			setattr(self, m, partial(getattr(tkv, m), tab))
 
@@ -198,12 +200,115 @@ class TKVsqlite(TKV):
 	def _execute_many(self, sql, *args):
 		return self.db.executemany(sql, *args)
 
-	
 	def _create(self, tab):
 		sql = f'create table if not exists "{tab}" (key text primary key, val) without rowid'
+		self._execute(sql)
+
+
+class TKVsqlitetable(TKV):
+	
+	def __init__(self, path=':memory:', table='tkv', dumps=None, loads=None, **kw):
+		self.db = sqlite3.connect(path, **kw)
+		self.tab = table
+		self.dumps = dumps or json.dumps
+		self.loads = loads or json.loads
+		self._create()
+		
+	# core
+	
+	def put(self, tab, key, val):
+		sql = f'replace into "{self.tab}"(tab,key,val) values(?,?,?)'
+		val = self.dumps(val)
+		self._execute(sql, (tab,key,val))
+
+	def get(self, tab, key, default=None):
+		sql = f'select val from "{self.tab}" where tab=? and key=?'
+		try:
+			val = self._execute(sql, (tab,key)).fetchone()[0]
+			val = self.loads(val)
+		except TypeError:
+			val = default
+		return val
+
+	def has(self, tab, key):
+		sql = f'select key from "{self.tab}" where tab=? and key=?'
+		try:
+			return bool(self._execute(sql, (tab,key)).fetchone())
+		except sqlite3.OperationalError:
+			return False
+
+	def drop(self, tab):
+		self._execute(f'delete from "{self.tab}" where tab=?', (tab,))
+
+
+	def delete(self, tab, key):
+		sql = f'delete from "{self.tab}" where tab=? and key=?'
+		self._execute(sql, (tab,key))
+
+	def size(self, tab):
+		sql = f'select sum(length(val)+length(key)) from "{self.tab}" where tab=?'
+		try:
+			val = self._execute(sql, (tab,)).fetchone()[0] or 0
+		except (sqlite3.OperationalError, TypeError):
+			val = 0
+		return val
+
+	# scanning
+
+	def keys(self, tab=None, pattern=None):
+		if pattern:
+			sql = f'select key from "{self.tab}" where tab=? and key glob ?'
+			return (x[0] for x in self._execute(sql, (tab,pattern)))
+		else:
+			sql = f'select key from "{self.tab}" where tab=?'
+			return (x[0] for x in self._execute(sql, (tab,)))
+		
+		
+	def items(self, tab=None, pattern=None):
+		if pattern:
+			sql = f'select key,val from "{self.tab}" where tab=? and key glob ?'
+			return ((k,self.loads(v)) for k,v in self._execute(sql, (tab,pattern)))
+		else:
+			sql = f'select key,val from "{self.tab}" where tab=?'
+			return ((k,self.loads(v)) for k,v in self._execute(sql, (tab,)))
+
+	def count(self, tab, pattern=None):
+		if pattern:
+			sql = f'select count(*) from "{self.tab}" where tab=? and key glob ?'
+			return self._execute(sql, (tab,pattern)).fetchone()[0]
+		else:
+			sql = f'select count(*) from "{self.tab}" where tab=?'
+			return self._execute(sql, (tab,)).fetchone()[0]
+
+	# extension
+	
+	# TODO: get_many
+	# TODO: put_items
+	
+	# other
+	
+	def tables(self):
+		sql = f'select distinct tab from "{self.tab}"'
+		return [x[0] for x in self._execute(sql)]
+
+	def flush(self):
+		self.db.commit()
+
+	# internals
+	
+	def _execute(self, sql, *args):
+		return self.db.execute(sql, *args)
+
+	def _execute_many(self, sql, *args):
+		return self.db.executemany(sql, *args)
+
+	def _create(self):
+		sql = f'create table if not exists "{self.tab}" (tab text, key text, val, primary key (tab,key)) without rowid'
 		self._execute(sql)
 
 
 def connect(*a,**kw):
 	return TKVsqlite(*a,**kw)
 
+def connect_table(*a,**kw):
+	return TKVsqlitetable(*a,**kw)
