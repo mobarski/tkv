@@ -1,14 +1,17 @@
 __author__ = 'Maciej Obarski'
-__version__ = '0.2.8'
+__version__ = '0.3.0'
 __license__ = 'MIT'
 
 # TODO: SQL injection prevention !!!
 
-# TODO: docs
-# TODO: patterns working exactly the same on all DB engines
-# TODO: benchmark
-# TODO: iterators vs lists
 # TODO: single table mode (separate class)
+# TODO: benchmark
+# TODO: compression
+# TODO: patterns working exactly the same on all DB engines
+# TODO: per table compression,dumps,loads
+# TODO: docs
+# TODO: tkv_mongo
+# TODO: tkv_snowflake
 # TODO: DB client configuration via single dict and not kwargs?
 
 import itertools
@@ -40,20 +43,19 @@ class TKV:
 	
 	def get_many(self, tab, keys, default=None):
 		return [self.get(tab, key, default) for key in keys]
-		
-	def put_many(self, tab, keys, values):
-		for k,v in zip(keys, values):
+				
+	def put_items(self, tab, items):
+		for k,v in items:
 			self.put(tab, k, v)
-		
-	# sugar
-	
-	def put_dict(self, tab, dict):
-		items = dict.items()
-		self.put_many(tab, [x[0] for x in items], [x[1] for x in items])
-		
-	def get_dict(self, tab, keys, default=None):
-		return dict(zip(keys, self.get_many(tab, keys, default)))
 
+	# sugar
+
+	def get_items(self, tab, keys, default=None):
+		return list(zip(keys, self.get_many(tab, keys, default)))
+
+	def put_many(self, tab, keys, values):
+		self.put_items(tab, zip(keys, values))
+		
 	def values(self, tab, pattern=None):
 		return (v for k,v in self.items(tab, pattern))
 
@@ -168,7 +170,7 @@ class TKVlite(TKV):
 	# extension
 
 	# TODO: optimized get_many
-	# TODO: optimized put_many
+	# TODO: optimized put_items
 
 	# other
 

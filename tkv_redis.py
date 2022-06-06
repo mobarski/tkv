@@ -64,13 +64,9 @@ class TKVredis(tkv.TKV):
 		values = [self.loads(x) if x else default for x in values]
 		return values
 		
-	def put_many(self, tab, keys, values):
-		self.put_dict(tab, dict(zip(keys, values)))
-	
-	# sugar
-	
-	def put_dict(self, tab, data):
-		self.db.hmset(tab, {k:self.dumps(v) for k,v in data.items()})
+	def put_items(self, tab, items):
+		self.db.hmset(tab, {k:self.dumps(v) for k,v in items})
+		
 
 def connect(*a,**kw):
 	return TKVredis(*a,**kw)

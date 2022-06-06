@@ -79,12 +79,12 @@
 	>>> sorted(db.values('c')) == ['one','two']
 	True
 
-	>>> db.put_dict('d', {'one':1, 'two':2, 'three':3})
+	>>> db.put_items('d', [('one',1), ('two',2), ('three',3)])
 	>>> db.get('d','one') == 1
 	True
 	>>> db.get('d','two') == 2
 	True
-	>>> sorted(db.get_dict('d',['one','two','foo'],default=-1).items()) == [('foo',-1),('one',1),('two',2)]
+	>>> sorted(db.get_items('d',['one','two','foo'],default=-1)) == [('foo',-1),('one',1),('two',2)]
 	True
 	
 	>>> db.size('d') > 0
