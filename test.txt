@@ -1,0 +1,97 @@
+
+# test_main_api
+
+	>>> db.put('a','x',1)
+	>>> db.put('a','y',2)
+	>>> db.put('a','z',3)
+
+	>>> db.put('b','r',11)
+	>>> db.put('b','s',22)
+
+	>>> db.get('a','x') == 1
+	True
+	>>> db.get('a','y') == 2
+	True
+	>>> db.get('a','z') == 3
+	True
+	>>> db.get('b','r') == 11
+	True
+	>>> db.get('b','s') == 22
+	True
+	>>> db.get('a','v',-1) == -1
+	True
+	>>> db.get('c','v',-1) == -1
+	True
+
+	>>> db.has('a','x') == True
+	True
+	>>> db.has('a','v') == False
+	True
+	>>> db.has('c','v') == False
+	True
+
+	>>> db.count('a') == 3
+	True
+	>>> db.count('b') == 2
+	True
+
+	>>> db.get_many('a',['x','y','z']) == [1,2,3]
+	True
+	>>> db.get_many('b',['r','s','t'],-1) == [11,22,-1]
+	True
+
+	>>> set(db.tables()) == set('ab')
+	True
+
+	>>> set(db.keys('a')) == set('xyz')
+	True
+	>>> set(db.keys('b')) == set('rs')
+	True
+
+
+# test_table_api
+
+	>>> t1 = db.table('aa')
+	>>> t2 = db.table('bb')
+	
+	>>> t1.put('x',1)
+	>>> t1.put('y',2)
+	>>> t1.put('z',3)
+
+	>>> t2.put('r',11)
+	>>> t2.put('s',22)
+
+	>>> t1.get('x') == 1
+	True
+	>>> t1.get('y') == 2
+	True
+	>>> t1.get('z') == 3
+	True
+	>>> t1.get('v',-1) == -1
+	True
+	>>> t2.get('r') == 11
+	True
+	>>> t2.get('s') == 22
+	True
+	
+	>>> t1.has('x') == True
+	True
+	>>> t1.has('v') == False
+	True
+	
+	>>> t1.count() == 3
+	True
+	>>> t2.count() == 2
+	True
+	
+	>>> t1.get_many(['x','y','z']) == [1,2,3]
+	True
+	>>> t2.get_many(['r','s','t'],-1) == [11,22,-1]
+	True
+	
+	>>> set(t1.keys()) == set('xyz')
+	True
+	>>> set(t2.keys()) == set('rs')
+	True
+
+
