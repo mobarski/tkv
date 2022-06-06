@@ -1,8 +1,6 @@
 __author__ = 'Maciej Obarski'
-__version__ = '0.4.1'
+__version__ = '0.4.2'
 __license__ = 'MIT'
-
-# TODO: SQL injection prevention !!!
 
 # TODO: single table mode (separate class)
 # TODO: benchmark
@@ -21,28 +19,19 @@ class TKV:
 
 	# core
 	
-	def put(self, tab, key, val):
-		pass
-	def get(self, tab, key, default=None):
-		pass
-	def has(self, tab, key):
-		pass
-	def delete(self, tab, key):
-		pass
-	def drop(self, tab):
-		pass
-	def size(self, tab):
-		pass
+	def put(self, tab, key, val):           not_implemented(self, 'put')
+	def get(self, tab, key, default=None):  not_implemented(self, 'get')
+	def has(self, tab, key):                not_implemented(self, 'has')
+	def delete(self, tab, key):             not_implemented(self, 'delete')
+	def drop(self, tab):                    not_implemented(self, 'drop')
+	def size(self, tab):                    not_implemented(self, 'size')
 	
 	# scanning
 	
-	def keys(self, tab, pattern=None):
-		pass
-	def items(self, tab, pattern=None):
-		pass
-	def count(self, tab, pattern=None):
-		pass
-		
+	def keys(self, tab, pattern=None):      not_implemented(self, 'keys')
+	def items(self, tab, pattern=None):     not_implemented(self, 'items')
+	def count(self, tab, pattern=None):     not_implemented(self, 'count')
+	
 	# extension (can be reimplemented in the child for better performance)
 	
 	def get_many(self, tab, keys, default=None):
@@ -69,14 +58,14 @@ class TKV:
 		return KV(tab, self)
 
 	def tables(self):
-		pass
+		not_implemented(self, 'tables')
 	
 	def flush(self):
 		pass
 	
 	def __del__(self):
 		self.flush()
-	
+		
 	@staticmethod
 	def group_keys(keys, pos, sep=':'):
 		return itertools.groupby(keys, lambda x:sep.join(x.split(sep)[:pos]))
@@ -88,6 +77,8 @@ class KV:
 		for m in methods:
 			setattr(self, m, partial(getattr(tkv, m), tab))
 
+def not_implemented(self, method_name):
+	raise NotImplementedError(f'{self.__class__.__name__}.{method_name}')
 
 # ===[ SQLite adapter ]========================================================
 
@@ -118,7 +109,7 @@ class TKVlite(TKV):
 		try:
 			val = self._execute(sql, (key,)).fetchone()[0]
 			val = self.loads(val)
-		except sqlite3.OperationalError:
+		except (sqlite3.OperationalError, TypeError):
 			val = default
 		return val
 
@@ -167,7 +158,7 @@ class TKVlite(TKV):
 		sql = f'select sum(length(val)+length(key)) from "{tab}"'
 		try:
 			val = self._execute(sql).fetchone()[0] or 0
-		except sqlite3.OperationalError:
+		except (sqlite3.OperationalError, TypeError):
 			val = 0
 		return val
 
