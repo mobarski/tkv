@@ -20,7 +20,12 @@ x = tab.get('foo')
 y = tab.get('bar', -1)
 
 # document store
-tab.put('my_doc', {'foo':'hello', 'bar':1.23, 'baz':[1,2,3], 'qux':{'a':1,'b':'two'}})
+tab.put('my_doc', {
+	'foo':'hello',
+	'bar':1.23,
+	'baz':[1,2,3],
+	'qux':{'a':1,'b':'two'},
+})
 x = tab.get('my_doc')['foo']
 ``` 
 
