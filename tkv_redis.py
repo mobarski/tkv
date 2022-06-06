@@ -25,20 +25,6 @@ class TKVredis(tkv.TKV):
 	def has(self, tab, key):
 		return self.db.hexists(tab, key)
 		
-	def keys(self, tab, pattern=None):
-		# TODO pattern
-		return [x.decode(self.encoding) for x in self.db.hkeys(tab)]
-		
-	def count(self, tab, pattern=None):
-		# TODO pattern
-		return self.db.hlen(tab)
-		
-	def items(self, tab, pattern=None):
-		# TODO pattern
-		items = self.db.hgetall(tab)
-		items = ((x[0].decode(self.encoding),self.loads(x[1])) for x in items)
-		return items
-
 	def tables(self):
 		return (x.decode(self.encoding) for x in self.db.keys())
 		
@@ -56,6 +42,22 @@ class TKVredis(tkv.TKV):
 					return int(x.split(':')[1])
 		except:
 			return 0
+
+	# scanning
+
+	def keys(self, tab, pattern=None):
+		# TODO pattern
+		return [x.decode(self.encoding) for x in self.db.hkeys(tab)]
+		
+	def count(self, tab, pattern=None):
+		# TODO pattern
+		return self.db.hlen(tab)
+		
+	def items(self, tab, pattern=None):
+		# TODO pattern
+		items = self.db.hgetall(tab)
+		items = ((x[0].decode(self.encoding),self.loads(x[1])) for x in items)
+		return items
 
 	# extension
 

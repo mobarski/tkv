@@ -1,5 +1,5 @@
 __author__ = 'Maciej Obarski'
-__version__ = '0.4.0'
+__version__ = '0.4.1'
 __license__ = 'MIT'
 
 # TODO: SQL injection prevention !!!
@@ -20,23 +20,27 @@ from functools import partial
 class TKV:
 
 	# core
+	
 	def put(self, tab, key, val):
 		pass
 	def get(self, tab, key, default=None):
 		pass
 	def has(self, tab, key):
 		pass
-	def keys(self, tab, pattern=None):
-		pass
-	def items(self, tab, pattern=None):
-		pass	
-	def count(self, tab, pattern=None):
-		pass
 	def delete(self, tab, key):
 		pass
 	def drop(self, tab):
 		pass
 	def size(self, tab):
+		pass
+	
+	# scanning
+	
+	def keys(self, tab, pattern=None):
+		pass
+	def items(self, tab, pattern=None):
+		pass
+	def count(self, tab, pattern=None):
 		pass
 		
 	# extension (can be reimplemented in the child for better performance)
