@@ -1,6 +1,24 @@
 
 # test_main_api
-
+	
+	>>> db.drop('a')
+	>>> db.drop('b')
+	>>> db.drop('c')
+	>>> db.drop('d')
+	>>> 'a' in db.tables()
+	False
+	>>> 'b' in db.tables()
+	False
+	>>> 'c' in db.tables()
+	False
+	>>> 'd' in db.tables()
+	False
+	
+	>>> db.size('a')
+	0
+	>>> db.size('b')
+	0
+	
 	>>> db.put('a','x',1)
 	>>> db.put('a','y',2)
 	>>> db.put('a','z',3)
@@ -40,14 +58,37 @@
 	>>> db.get_many('b',['r','s','t'],-1) == [11,22,-1]
 	True
 
-	>>> set(db.tables()) == set('ab')
+	>>> 'a' in db.tables()
 	True
+	>>> 'b' in db.tables()
+	True
+	>>> 'c' in db.tables()
+	False
 
 	>>> set(db.keys('a')) == set('xyz')
 	True
 	>>> set(db.keys('b')) == set('rs')
 	True
 
+	>>> db.put_many('c', ['u','v'], ['one','two'])
+	>>> db.get('c','u') == 'one'
+	True
+	>>> db.get('c','v') == 'two'
+	True
+	
+	>>> sorted(db.values('c')) == ['one','two']
+	True
+
+	>>> db.put_dict('d', {'one':1, 'two':2, 'three':3})
+	>>> db.get('d','one') == 1
+	True
+	>>> db.get('d','two') == 2
+	True
+	>>> sorted(db.get_dict('d',['one','two','foo'],default=-1).items()) == [('foo',-1),('one',1),('two',2)]
+	True
+	
+	>>> db.size('d') > 0
+	True
 
 # test_table_api
 
@@ -94,4 +135,13 @@
 	>>> set(t2.keys()) == set('rs')
 	True
 
+
+# test_patterns
+
+	# TODO keys
+	# TODO items
+	# TODO count
+	# TODO values
+
+# test_group_keys
 

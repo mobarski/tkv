@@ -48,6 +48,15 @@ class TKVredis(tkv.TKV):
 	def delete(self, tab, key):
 		self.db.hdel(tab, key)
 
+	def size(self, tab):
+		try:
+			resp = self.db.execute_command(f'DEBUG OBJECT {tab}').decode()
+			for x in resp.split(' '):
+				if x.startswith('serializedlength:'):
+					return int(x.split(':')[1])
+		except:
+			return 0
+
 	# extension
 
 	def get_many(self, tab, keys, default=None):
