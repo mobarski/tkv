@@ -11,17 +11,19 @@ db = tkv.connect('my_file.sqlite')
 
 # simple usage
 db.put('my_table', 'foo', 'hello')
-x = db.get('my_table', 'foo')
-y = db.get('my_table', 'bar', -1)
+x = db.get('my_table', 'foo')     # -> 'hello'
+y = db.get('my_table', 'bar', -1) # -> -1
+z = db.count('my_table')          # -> 1
 
 # table example
 tab = db.table('my_table')
-x = tab.get('foo')
-y = tab.get('bar', -1)
+x = tab.get('foo')     # -> 'hello'
+y = tab.get('bar', -1) # -> -1
+z = tab.count()        # -> 1
 
 # document store
 tab.put('my_doc', {'foo':'hello', 'bar':1.23, 'baz':[1,2,3]})
-x = tab.get('my_doc')['foo']
+x = tab.get('my_doc')['foo'] # -> 'hello'
 ``` 
 
 # Download and Install
