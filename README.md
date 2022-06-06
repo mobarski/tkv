@@ -10,18 +10,18 @@ import tkv
 db = tkv.connect('my_file.sqlite')
 
 # simple usage
-db.put('my_table', 'foo', 'bar')
+db.put('my_table', 'foo', 'hello')
 x = db.get('my_table', 'foo')
-y = db.get('my_table', 'baz', -1)
+y = db.get('my_table', 'bar', -1)
 
 # table example
 tab = db.table('my_table')
 x = tab.get('foo')
-y = tab.get('baz', -1)
+y = tab.get('bar', -1)
 
 # document store
-tab.put('my_doc', {'name':'foo', 'price':1.23, 'tag_ids':[1,2,3]})
-x = tab.get('my_doc')['name']
+tab.put('my_doc', {'foo':'hello', 'bar':1.23, 'baz':[1,2,3], 'qux':{'a':1,'b':'two'}})
+x = tab.get('my_doc')['foo']
 ``` 
 
 # Download and Install
