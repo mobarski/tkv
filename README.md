@@ -26,6 +26,14 @@ tab.put('my_doc', {'foo':'hello', 'bar':1.23, 'baz':[1,2,3]})
 x = tab.get('my_doc')['foo'] # -> 'hello'
 ``` 
 
+```python
+import tkv_redis
+db = tkv_redis.connect(host='127.0.0.1')
+
+import tkv_mongo
+db = tkv_mongo.connect('127.0.0.1')
+```
+
 # Download and Install
 
 Install the latest version with `pip install git+https://github.com/mobarski/tkv.git`.
