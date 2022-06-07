@@ -41,4 +41,4 @@ if __name__=="__main__":
 	engines = ['sqlite']
 	
 	for e in engines:
-		test_engine(e, verbose=True)
+		test_engine(e, verbose=False)

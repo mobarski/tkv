@@ -1,4 +1,4 @@
-### test_count: 229
+### test_count: 246
 
 # test_main_api
 	
@@ -436,3 +436,32 @@
 	True
 	>>> len(db.get('zip','x100k'))
 	100000
+
+	# table + dumps + loads
+
+	>>> db.put('t1', 'x', 1)
+	>>> db.get('t1', 'x')
+	1
+	>>> db.dumps = lambda x:'A'+str(x)
+	>>> db.loads = lambda x:x
+	>>> db.put('t1', 'x', 2)
+	>>> db.get('t1', 'x')
+	'A2'
+	>>> db.put('t2', 'x', 3)
+	>>> db.get('t2', 'x')
+	'A3'
+	>>> t1 = db.table('t1', dumps=lambda x:'B'+str(x))
+	>>> t1.put('x', 4)
+	>>> t1.get('x')
+	'B4'
+	>>> db.get('t1','x')
+	'B4'
+	>>> db.put('t2','x',5)
+	>>> db.get('t2','x')
+	'A5'
+	>>> t2 = db.table('t2', loads=lambda x:'C'+str(x))
+	>>> t2.get('x')
+	'CA5'
+	>>> db.get('t2','x')
+	'A5'
+

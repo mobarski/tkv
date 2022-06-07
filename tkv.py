@@ -1,8 +1,7 @@
 __author__ = 'Maciej Obarski'
-__version__ = '0.6.1'
+__version__ = '0.6.3'
 __license__ = 'MIT'
 
-# TODO: per table dumps,loads
 # TODO: compression: example, api?
 # TODO: redis - patterns
 # TODO: mongo - patterns
@@ -53,8 +52,8 @@ class TKV:
 
 	# other
 
-	def table(self, tab):
-		return KV(tab, self)
+	def table(self, tab, dumps=None, loads=None):
+		return KV(tab, self, dumps, loads)
 
 	def tables(self):
 		not_implemented(self, 'tables')
@@ -70,11 +69,17 @@ class TKV:
 		return itertools.groupby(keys, lambda x:sep.join(x.split(sep)[:pos]))
 
 
+from copy import copy
 class KV:
-	def __init__(self, tab, tkv):
+	def __init__(self, tab, tkv, dumps, loads):
+		self.dumps = dumps or tkv.dumps
+		self.loads = loads or tkv.loads
+		_tkv = copy(tkv)
+		_tkv.dumps = self.dumps
+		_tkv.loads = self.loads
 		methods = [x for x in dir(TKV) if x[0]!='_' and x not in ['tables','group_keys','flush','db','tab']]
 		for m in methods:
-			setattr(self, m, partial(getattr(tkv, m), tab))
+			setattr(self, m, partial(getattr(_tkv, m), tab))
 
 def not_implemented(self, method_name):
 	raise NotImplementedError(f'{self.__class__.__name__}.{method_name}')
@@ -322,3 +327,4 @@ def connect(*a,**kw):
 
 def connect_table(*a,**kw):
 	return TKVsqlitetable(*a,**kw)
+
