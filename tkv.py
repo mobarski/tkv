@@ -2,14 +2,13 @@ __author__ = 'Maciej Obarski'
 __version__ = '0.6.1'
 __license__ = 'MIT'
 
-# TODO: test - methods on non exising table
-# TODO: compression: example and test
-# TODO: table dict interface
-# TODO: benchmark
-# TODO: patterns working exactly the same on all DB engines
+# TODO: per table dumps,loads
+# TODO: compression: example, api?
+# TODO: redis - patterns
+# TODO: mongo - patterns
 # TODO: docs
-# TODO: per table compression,dumps,loads
-# TODO: tkv_snowflake
+# TODO: patterns working exactly the same on all DB engines
+# TODO: table dict interface
 # TODO: DB client configuration via single dict and not kwargs?
 
 import itertools
