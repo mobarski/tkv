@@ -93,7 +93,7 @@ if __name__=="__main__":
 	import os
 	
 	
-	db_path = 'usunmnie.sqlite'
+	db_path = 'deleteme.sqlite'
 	try:
 		os.remove(db_path)
 	except FileNotFoundError:
@@ -118,4 +118,3 @@ if __name__=="__main__":
 		compress=False,
 		doc=True,
 	)
-	os.remove(db_path)
