@@ -1,3 +1,4 @@
+### test_count: 229
 
 # test_main_api
 	
@@ -138,10 +139,300 @@
 
 # test_patterns
 
-	# TODO keys
-	# TODO items
-	# TODO count
-	# TODO values
+	>>> db.drop('abc')
+	>>> tab = db.table('abc')
+	
+	# shuffled to exclude insertion order dependence
+	>>> tab.put('a2/b3/c1', '2.3.1') # 9
+	>>> tab.put('a2/b1/c1', '2.1.1') # 6
+	>>> tab.put('a1/b2/c1', '1.2.1') # 3
+	>>> tab.put('a2/b2/c1', '2.2.1') # 8
+	>>> tab.put('a1/b2/c3', '1.2.3') # 5
+	>>> tab.put('a1/b1/c1', '1.1.1') # 1
+	>>> tab.put('a1/b2/c2', '1.2.2') # 4
+	>>> tab.put('a1/b1/c2', '1.1.2') # 2
+	>>> tab.put('a2/b1/c2', '2.1.2') # 7
+	
+	# count
+	
+	>>> tab.count('a1/b1/*')
+	2
+	>>> tab.count('a1/b2/*')
+	3
+	>>> tab.count('a1/*')
+	5
+	>>> tab.count('a2/*')
+	4
+	>>> tab.count('a2/b2/*')
+	1
+	>>> tab.count('a3/*')
+	0
+	>>> tab.count('*')
+	9
+	>>> tab.count('*/b1/*')
+	4
+	>>> tab.count('*/c1')
+	5
+	>>> tab.count('*/c3')
+	1
+	>>> tab.count('*/c4')
+	0
+	
+	# values
+
+	>>> list(tab.values('a1/b1/*'))
+	['1.1.1', '1.1.2']
+	>>> list(tab.values('a1/b2/*'))
+	['1.2.1', '1.2.2', '1.2.3']
+	>>> list(tab.values('a1/*'))
+	['1.1.1', '1.1.2', '1.2.1', '1.2.2', '1.2.3']
+	>>> list(tab.values('a2/*'))
+	['2.1.1', '2.1.2', '2.2.1', '2.3.1']
+	>>> list(tab.values('a2/b2/*'))
+	['2.2.1']
+	>>> list(tab.values('a3/*'))
+	[]
+	>>> list(tab.values('*'))
+	['1.1.1', '1.1.2', '1.2.1', '1.2.2', '1.2.3', '2.1.1', '2.1.2', '2.2.1', '2.3.1']
+	>>> list(tab.values('*/b1/*'))
+	['1.1.1', '1.1.2', '2.1.1', '2.1.2']
+	>>> list(tab.values('*/c1'))
+	['1.1.1', '1.2.1', '2.1.1', '2.2.1', '2.3.1']
+	>>> list(tab.values('*/c3'))
+	['1.2.3']
+	>>> list(tab.values('*/c4'))
+	[]
+
+	# keys
+
+	>>> list(tab.keys('a1/b1/*'))
+	['a1/b1/c1', 'a1/b1/c2']
+	>>> list(tab.keys('a1/b2/*'))
+	['a1/b2/c1', 'a1/b2/c2', 'a1/b2/c3']
+	>>> list(tab.keys('a1/*'))
+	['a1/b1/c1', 'a1/b1/c2', 'a1/b2/c1', 'a1/b2/c2', 'a1/b2/c3']
+	>>> list(tab.keys('a2/*'))
+	['a2/b1/c1', 'a2/b1/c2', 'a2/b2/c1', 'a2/b3/c1']
+	>>> list(tab.keys('a2/b2/*'))
+	['a2/b2/c1']
+	>>> list(tab.keys('a3/*'))
+	[]
+	>>> list(tab.keys('*'))
+	['a1/b1/c1', 'a1/b1/c2', 'a1/b2/c1', 'a1/b2/c2', 'a1/b2/c3', 'a2/b1/c1', 'a2/b1/c2', 'a2/b2/c1', 'a2/b3/c1']
+	>>> list(tab.keys('*/b1/*'))
+	['a1/b1/c1', 'a1/b1/c2', 'a2/b1/c1', 'a2/b1/c2']
+	>>> list(tab.keys('*/c1'))
+	['a1/b1/c1', 'a1/b2/c1', 'a2/b1/c1', 'a2/b2/c1', 'a2/b3/c1']
+	>>> list(tab.keys('*/c3'))
+	['a1/b2/c3']
+	>>> list(tab.keys('*/c4'))
+	[]
+
+	# items
+
+	>>> list(tab.items('a1/b1/*'))
+	[('a1/b1/c1', '1.1.1'), ('a1/b1/c2', '1.1.2')]
+	>>> list(tab.items('a1/b2/*'))
+	[('a1/b2/c1', '1.2.1'), ('a1/b2/c2', '1.2.2'), ('a1/b2/c3', '1.2.3')]
+	>>> list(tab.items('a1/*'))
+	[('a1/b1/c1', '1.1.1'), ('a1/b1/c2', '1.1.2'), ('a1/b2/c1', '1.2.1'), ('a1/b2/c2', '1.2.2'), ('a1/b2/c3', '1.2.3')]
+	>>> list(tab.items('a2/*'))
+	[('a2/b1/c1', '2.1.1'), ('a2/b1/c2', '2.1.2'), ('a2/b2/c1', '2.2.1'), ('a2/b3/c1', '2.3.1')]
+	>>> list(tab.items('a2/b2/*'))
+	[('a2/b2/c1', '2.2.1')]
+	>>> list(tab.items('a3/*'))
+	[]
+	>>> list(tab.items('*'))
+	[('a1/b1/c1', '1.1.1'), ('a1/b1/c2', '1.1.2'), ('a1/b2/c1', '1.2.1'), ('a1/b2/c2', '1.2.2'), ('a1/b2/c3', '1.2.3'), ('a2/b1/c1', '2.1.1'), ('a2/b1/c2', '2.1.2'), ('a2/b2/c1', '2.2.1'), ('a2/b3/c1', '2.3.1')]
+	>>> list(tab.items('*/b1/*'))
+	[('a1/b1/c1', '1.1.1'), ('a1/b1/c2', '1.1.2'), ('a2/b1/c1', '2.1.1'), ('a2/b1/c2', '2.1.2')]
+	>>> list(tab.items('*/c1'))
+	[('a1/b1/c1', '1.1.1'), ('a1/b2/c1', '1.2.1'), ('a2/b1/c1', '2.1.1'), ('a2/b2/c1', '2.2.1'), ('a2/b3/c1', '2.3.1')]
+	>>> list(tab.items('*/c3'))
+	[('a1/b2/c3', '1.2.3')]
+	>>> list(tab.items('*/c4'))
+	[]
+
+# test_non_existing_table
+
+	>>> db.drop('xyzzy')
+	>>> db.drop('xyzzy')
+	
+	>>> db.get('xyzzy', 'x', -1)
+	-1
+	>>> db.get_many('xyzzy', ['x','y'], -1)
+	[-1, -1]
+	>>> db.get_items('xyzzy', ['x','y'], -1)
+	[('x', -1), ('y', -1)]
+	>>> list(db.keys('xyzzy'))
+	[]
+	>>> list(db.items('xyzzy'))
+	[]
+	>>> list(db.values('xyzzy'))
+	[]
+	>>> db.count('xyzzy')
+	0
+	>>> db.size('xyzzy')
+	0
+	>>> db.has('xyzzy', 'x')
+	False
+	
+	>>> db.delete('xyzzy', 'y')
+
+
+# test_table_names
+
+	>>> db.drop('ΛλΨΩΦ♪♫')
+	>>> db.drop('zażółć_gęślą_jaźń')
+	>>> db.drop('zażółć gęślą jaźń')
+	>>> db.drop('ZAŻÓŁĆ GĘŚLĄ JAŹŃ')
+	>>> db.drop('aa')
+	>>> db.drop('Aa')
+	>>> db.drop('aA')
+	>>> db.drop('AA')
+	>>> db.drop('0')
+	>>> db.drop('_')
+	>>> db.drop('λ')
+	>>> db.drop(' ')
+	>>> db.drop('a/b')
+	>>> db.drop('a:b')
+	>>> db.drop('a;b')
+	>>> db.drop('a.b')
+	>>> db.drop('a,b')
+	>>> db.drop('a#b')
+	>>> db.drop('a@b')
+	>>> db.drop('a!b')
+	>>> db.drop('a$b')
+	>>> db.drop('a^b')
+	>>> db.drop('a-b')
+	>>> db.drop('a=b')
+
+	>>> db.put('ΛλΨΩΦ♪♫', 'x', 1)
+	>>> db.get('ΛλΨΩΦ♪♫', 'x')
+	1
+	
+	>>> db.put('zażółć gęślą jaźń', 'x', 2)
+	>>> db.get('zażółć gęślą jaźń', 'x')
+	2
+
+	>>> db.put('zażółć_gęślą_jaźń', 'x', 3)
+	>>> db.get('zażółć_gęślą_jaźń', 'x')
+	3
+	
+	>>> db.put('ZAŻÓŁĆ GĘŚLĄ JAŹŃ', 'y', 4)
+	>>> db.get('ZAŻÓŁĆ GĘŚLĄ JAŹŃ', 'y')
+	4
+	>>> db.get('ZAŻÓŁĆ GĘŚLĄ JAŹŃ', 'x', -1)
+	-1
+	
+	>>> tables = set(db.tables())
+	>>> 'ΛλΨΩΦ♪♫' in tables
+	True
+	>>> 'zażółć gęślą jaźń' in tables
+	True
+	>>> 'ZAŻÓŁĆ GĘŚLĄ JAŹŃ' in tables
+	True
+
+	>>> db.put('aa', 'v', 11)
+	>>> db.put('Aa', 'x', 21)
+	>>> db.put('aA', 'y', 12)
+	>>> db.put('AA', 'z', 22)
+
+	>>> db.count('aa')
+	1
+	>>> db.count('Aa')
+	1
+	>>> db.count('aA')
+	1
+	>>> db.count('AA')
+	1
+	>>> len( set(db.tables()) & set(['aa','Aa','aA','AA']) )
+	4
+
+	>>> db.put('0', 'x', 123)
+	>>> db.put('_', 'x', 123)
+	>>> db.put('λ', 'x', 123)
+	>>> db.put(' ', 'x', 123)
+
+	>>> len( set(db.tables()) & set(['0','_','λ',' ']) )
+	4
+
+	>>> db.put('x0', 'x', 123)
+	>>> db.put('x_', 'x', 123)
+	>>> db.put('xλ', 'x', 123)
+	>>> db.put('x ', 'x', 123)
+
+	>>> len( set(db.tables()) & set(['x0','x_','xλ','x ']) )
+	4
+	
+	>>> db.put('a/b', 'x', 1)
+	>>> db.get('a/b', 'x', 0)
+	1
+	>>> db.put('a:b', 'x', 1)
+	>>> db.get('a:b', 'x', 0)
+	1
+	>>> db.put('a;b', 'x', 1)
+	>>> db.get('a;b', 'x', 0)
+	1
+	>>> db.put('a.b', 'x', 1)
+	>>> db.get('a.b', 'x', 0)
+	1
+	>>> db.put('a,b', 'x', 1)
+	>>> db.get('a,b', 'x', 0)
+	1
+	>>> db.put('a#b', 'x', 1)
+	>>> db.get('a#b', 'x', 0)
+	1
+	>>> db.put('a@b', 'x', 1)
+	>>> db.get('a@b', 'x', 0)
+	1
+	>>> db.put('a!b', 'x', 1)
+	>>> db.get('a!b', 'x', 0)
+	1
+	>>> db.put('a$b', 'x', 1)
+	>>> db.get('a$b', 'x', 0)
+	1
+	>>> db.put('a^b', 'x', 1)
+	>>> db.get('a^b', 'x', 0)
+	1
+	>>> db.put('a-b', 'x', 1)
+	>>> db.get('a-b', 'x', 0)
+	1
+	>>> db.put('a=b', 'x', 1)
+	>>> db.get('a=b', 'x', 0)
+	1
 
 # test_group_keys
 
+
+
+# test_dumps_loads
+
+	# !!! this must be the last test set as it changes the dumps/loads functions !!!
+
+	>>> import cloudpickle
+	>>> db.dumps = cloudpickle.dumps
+	>>> db.loads = cloudpickle.loads
+	
+	>>> def foo(x): return x+1
+	>>> foo(1)
+	2
+	>>> db.put('fun', 'foo', foo)
+	>>> bar = db.get('fun', 'foo')
+	>>> bar(1)
+	2
+	
+	>>> db.put('fun', 'baz', lambda x:x+2)
+	>>> db.get('fun', 'baz')(40)
+	42
+
+	>>> import json
+	>>> import zlib
+	>>> db.dumps = lambda x:zlib.compress(json.dumps(x).encode('utf8'))
+	>>> db.loads = lambda x:json.loads(zlib.decompress(x).decode('utf8'))
+	>>> db.drop('zip')
+	>>> db.put('zip', 'x100k', 'x'*100_000)
+	>>> db.size('zip') < 1_000
+	True
+	>>> len(db.get('zip','x100k'))
+	100000

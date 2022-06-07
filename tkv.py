@@ -1,8 +1,7 @@
 __author__ = 'Maciej Obarski'
-__version__ = '0.6'
+__version__ = '0.6.1'
 __license__ = 'MIT'
 
-# TODO: test - spaces, accents, case sensitivity
 # TODO: test - methods on non exising table
 # TODO: compression: example and test
 # TODO: table dict interface
@@ -68,7 +67,7 @@ class TKV:
 		self.flush()
 		
 	@staticmethod
-	def group_keys(keys, pos, sep=':'):
+	def group_keys(keys, pos, sep='/'):
 		return itertools.groupby(keys, lambda x:sep.join(x.split(sep)[:pos]))
 
 
@@ -127,7 +126,10 @@ class TKVsqlite(TKV):
 			sql = f'select key from "{tab}" where key glob "{pattern}"'
 		else:
 			sql = f'select key from "{tab}"'
-		return (x[0] for x in self._execute(sql))
+		try:
+			return (x[0] for x in self._execute(sql))
+		except sqlite3.OperationalError:
+			return []
 		
 		
 	def items(self, tab=None, pattern=None):
@@ -135,16 +137,22 @@ class TKVsqlite(TKV):
 			sql = f'select key,val from "{tab}" where key glob "{pattern}"'
 		else:
 			sql = f'select key,val from "{tab}"'
-		return ((k,self.loads(v)) for k,v in self._execute(sql))
+		try:
+			return ((k,self.loads(v)) for k,v in self._execute(sql))
+		except sqlite3.OperationalError:
+			return []
 				
 		
 	def drop(self, tab):
-		self._execute(f'drop table if exists {tab}')
+		self._execute(f'drop table if exists "{tab}"')
 
 
 	def delete(self, tab, key):
 		sql = f'delete from "{tab}" where key=?'
-		self._execute(sql, (key,))
+		try:
+			self._execute(sql, (key,))
+		except sqlite3.OperationalError:
+			pass
 
 
 	def count(self, tab, pattern=None):
@@ -152,7 +160,10 @@ class TKVsqlite(TKV):
 			sql = f'select count(*) from "{tab}" where key glob "{pattern}"'
 		else:
 			sql = f'select count(*) from "{tab}"'
-		return self._execute(sql).fetchone()[0]
+		try:
+			return self._execute(sql).fetchone()[0]
+		except sqlite3.OperationalError:
+			return 0
 
 	# TODO: from metadata
 	def size(self, tab):
