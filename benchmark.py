@@ -50,13 +50,13 @@ def benchmark_get_many_100(tab, data, keys):
 	for i in range(0,len(keys),100):
 		tab.get_many(keys[i:i+100])
 
-def benchmark_get_many_255(tab, data, keys):
-	for i in range(0,len(keys),255):
-		tab.get_many(keys[i:i+255])
+def benchmark_get_many_250(tab, data, keys):
+	for i in range(0,len(keys),250):
+		tab.get_many(keys[i:i+250])
 
-def benchmark_get_many_1000(tab, data, keys):
-	for i in range(0,len(keys),1000):
-		tab.get_many(keys[i:i+1000])
+def benchmark_get_many_500(tab, data, keys):
+	for i in range(0,len(keys),500):
+		tab.get_many(keys[i:i+500])
 
 
 def benchmark(db, fun_list, records=10_000, key_size=10, val_size=1000, iters=5, doc=False, compress=False):
@@ -83,7 +83,7 @@ def benchmark(db, fun_list, records=10_000, key_size=10, val_size=1000, iters=5,
 			t1 = time()
 			fun(tab,data[i],keys[i])
 			t = time()-t1
-			print(ts, records, val_size, i, f'{t:0.2f}', str(int(records/t)).rjust(7), fun.__name__.replace('benchmark_',''), sep='  ')
+			print(ts, records, val_size, i, f'{t:5.2f}', str(int(records/t)).rjust(7), fun.__name__.replace('benchmark_',''), sep='  ')
 	print()
 	print(f'total_size: {tab.size()} chars (compress={compress})')
 	print(f'total_time: {time()-t0:0.1f} seconds')
@@ -110,11 +110,12 @@ if __name__=="__main__":
 			benchmark_get_many_2,
 			benchmark_get_many_10,
 			benchmark_get_many_100,
-			benchmark_get_many_255,
-			benchmark_get_many_1000,
+			benchmark_get_many_250,
+			benchmark_get_many_500,
 		],
 		records=10_000,
 		val_size=1_000,
 		compress=False,
 		doc=True,
 	)
+	os.remove(db_path)
