@@ -8,7 +8,11 @@ def test_engine(e, verbose=False):
 	elif e == 'sqlite_table':
 		import tkv_sqlite
 		db = tkv_sqlite.connect_table()
-		
+	
+	elif e == 'duckdb':
+		import tkv_duckdb
+		db = tkv_duckdb.connect()
+	
 	elif e == 'redis':
 		import tkv_redis
 		db = tkv_redis.connect(host='127.0.0.1', port=6379)
@@ -38,7 +42,7 @@ if __name__=="__main__":
 	import sys
 	# TODO: engines from sys.argv
 	# TODO: verbose from sys.argv
-	engines = ['sqlite_table']
+	engines = ['duckdb']
 	
 	for e in engines:
 		test_engine(e, verbose=False)

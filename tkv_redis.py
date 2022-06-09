@@ -1,3 +1,5 @@
+# !!! PRE-ALPHA AS HELL - DO NOT USE IT !!!
+
 import tkv
 import redis
 import json

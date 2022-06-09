@@ -11,7 +11,6 @@
 - view -> common table expression as source table db.table('users/id/total_value', cte='select id,sum(value) as total_value from user_transactions group by id')
 
 - rethink sorting of keys and groupping -> keys(sorted=False) ...
-- tkv_duckdb.connect
 - tkv_duckdb.connect_view
 - docs - intro
 - multicolumn keys in views -> concatws('/',db_key1,db_key2) -> or CTE(concatws(...) as key,\* from ...)
@@ -35,6 +34,7 @@
 
 # DONE
 
+- tkv_duckdb.connect
 - tkv_sqlite.connect_view
 - split methods with pattern into two: scan_xxx and xxx
 - split tkv into tkv and tkv_sqlite
