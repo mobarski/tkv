@@ -297,11 +297,10 @@ class TKVsqliteview(tkv.VTKV):
 		sql = f'select "{db_col}" from "{db_tab}" order by "{db_key}"'
 		return self._execute(sql) # TODO
 	
-	# TODO: multicolumn support
 	def items(self, tab, sort=False):
 		db_tab, db_key, db_col = self._parse_tab(tab)
 		sql = f'select "{db_key}","{db_col}" from "{db_tab}" order by "{db_key}"'
-		return self._execute(sql) # TODO
+		return ((x[0],x[1:]) for x in self._execute(sql))
 
 	# extension
 	

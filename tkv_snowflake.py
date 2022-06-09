@@ -51,7 +51,7 @@ class VTKVsnowflake(tkv.VTKV):
 	def items(self, tab, sort=False):
 		db_tab, db_key, db_col = self._parse_tab(tab)
 		sql = f'select "{db_key}","{db_col}" from "{self.sch}"."{db_tab}" order by "{db_key}"'
-		return self._execute(sql) # TODO
+		return ((x[0],x[1:]) for x in self._execute(sql))
 	
 
 	# extension
