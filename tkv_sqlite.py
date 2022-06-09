@@ -38,27 +38,43 @@ class TKVsqlite(tkv.TKV):
 		except sqlite3.OperationalError:
 			return False
 
-	def keys(self, tab=None, pattern=None):
-		if pattern:
-			sql = f'select key from "{tab}" where key glob "{pattern}"'
-		else:
-			sql = f'select key from "{tab}"'
+	def keys(self, tab, sort=False):
+		sql = f'select key from "{tab}"'
 		try:
 			return (x[0] for x in self._execute(sql))
 		except sqlite3.OperationalError:
 			return []
 		
 		
-	def items(self, tab=None, pattern=None):
-		if pattern:
-			sql = f'select key,val from "{tab}" where key glob "{pattern}"'
-		else:
-			sql = f'select key,val from "{tab}"'
+	def items(self, tab, sort=False):
+		sql = f'select key,val from "{tab}"'
 		try:
 			return ((k,self.loads(v)) for k,v in self._execute(sql))
 		except sqlite3.OperationalError:
 			return []
-				
+
+	def scan_keys(self, tab, pattern, sort=False):
+		sql = f'select key from "{tab}" where key glob "{pattern}"'
+		try:
+			return (x[0] for x in self._execute(sql))
+		except sqlite3.OperationalError:
+			return []
+		
+		
+	def scan_items(self, tab, pattern, sort=False):
+		sql = f'select key,val from "{tab}" where key glob "{pattern}"'
+		try:
+			return ((k,self.loads(v)) for k,v in self._execute(sql))
+		except sqlite3.OperationalError:
+			return []
+
+	def scan_count(self, tab, pattern):
+		sql = f'select count(*) from "{tab}" where key glob "{pattern}"'
+		try:
+			return self._execute(sql).fetchone()[0]
+		except sqlite3.OperationalError:
+			return 0
+			
 		
 	def drop(self, tab):
 		self._execute(f'drop table if exists "{tab}"')
@@ -72,11 +88,8 @@ class TKVsqlite(tkv.TKV):
 			pass
 
 
-	def count(self, tab, pattern=None):
-		if pattern:
-			sql = f'select count(*) from "{tab}" where key glob "{pattern}"'
-		else:
-			sql = f'select count(*) from "{tab}"'
+	def count(self, tab):
+		sql = f'select count(*) from "{tab}"'
 		try:
 			return self._execute(sql).fetchone()[0]
 		except sqlite3.OperationalError:
@@ -181,32 +194,34 @@ class TKVsqlitetable(tkv.TKV):
 			val = 0
 		return val
 
+	# iterators
+
+	def keys(self, tab, sort=False):
+		sql = f'select key from "{self.tab}" where tab=?'
+		return (x[0] for x in self._execute(sql, (tab,)))
+		
+		
+	def items(self, tab, sort=False):
+		sql = f'select key,val from "{self.tab}" where tab=?'
+		return ((k,self.loads(v)) for k,v in self._execute(sql, (tab,)))
+
+	def count(self, tab, sort=False):
+		sql = f'select count(*) from "{self.tab}" where tab=?'
+		return self._execute(sql, (tab,)).fetchone()[0]
+
 	# scanning
 
-	def keys(self, tab=None, pattern=None):
-		if pattern:
-			sql = f'select key from "{self.tab}" where tab=? and key glob ?'
-			return (x[0] for x in self._execute(sql, (tab,pattern)))
-		else:
-			sql = f'select key from "{self.tab}" where tab=?'
-			return (x[0] for x in self._execute(sql, (tab,)))
-		
-		
-	def items(self, tab=None, pattern=None):
-		if pattern:
-			sql = f'select key,val from "{self.tab}" where tab=? and key glob ?'
-			return ((k,self.loads(v)) for k,v in self._execute(sql, (tab,pattern)))
-		else:
-			sql = f'select key,val from "{self.tab}" where tab=?'
-			return ((k,self.loads(v)) for k,v in self._execute(sql, (tab,)))
+	def scan_keys(self, tab, pattern, sort=False):
+		sql = f'select key from "{self.tab}" where tab=? and key glob ?'
+		return (x[0] for x in self._execute(sql, (tab,pattern)))
+			
+	def scan_items(self, tab, pattern, sort=False):
+		sql = f'select key,val from "{self.tab}" where tab=? and key glob ?'
+		return ((k,self.loads(v)) for k,v in self._execute(sql, (tab,pattern)))
 
-	def count(self, tab, pattern=None):
-		if pattern:
-			sql = f'select count(*) from "{self.tab}" where tab=? and key glob ?'
-			return self._execute(sql, (tab,pattern)).fetchone()[0]
-		else:
-			sql = f'select count(*) from "{self.tab}" where tab=?'
-			return self._execute(sql, (tab,)).fetchone()[0]
+	def scan_count(self, tab, pattern, sort=False):
+		sql = f'select count(*) from "{self.tab}" where tab=? and key glob ?'
+		return self._execute(sql, (tab,pattern)).fetchone()[0]
 
 	# extension
 	

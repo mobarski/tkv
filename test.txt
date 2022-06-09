@@ -137,7 +137,7 @@
 	True
 
 
-# test_patterns
+# test_scan_patterns
 
 	>>> db.drop('abc')
 	>>> tab = db.table('abc')
@@ -153,104 +153,104 @@
 	>>> tab.put('a1/b1/c2', '1.1.2') # 2
 	>>> tab.put('a2/b1/c2', '2.1.2') # 7
 	
-	# count
+	# scan_count
 	
-	>>> tab.count('a1/b1/*')
+	>>> tab.scan_count('a1/b1/*')
 	2
-	>>> tab.count('a1/b2/*')
+	>>> tab.scan_count('a1/b2/*')
 	3
-	>>> tab.count('a1/*')
+	>>> tab.scan_count('a1/*')
 	5
-	>>> tab.count('a2/*')
+	>>> tab.scan_count('a2/*')
 	4
-	>>> tab.count('a2/b2/*')
+	>>> tab.scan_count('a2/b2/*')
 	1
-	>>> tab.count('a3/*')
+	>>> tab.scan_count('a3/*')
 	0
-	>>> tab.count('*')
+	>>> tab.scan_count('*')
 	9
-	>>> tab.count('*/b1/*')
+	>>> tab.scan_count('*/b1/*')
 	4
-	>>> tab.count('*/c1')
+	>>> tab.scan_count('*/c1')
 	5
-	>>> tab.count('*/c3')
+	>>> tab.scan_count('*/c3')
 	1
-	>>> tab.count('*/c4')
+	>>> tab.scan_count('*/c4')
 	0
 	
-	# values
+	# scan_values
 
-	>>> list(tab.values('a1/b1/*'))
+	>>> list(tab.scan_values('a1/b1/*'))
 	['1.1.1', '1.1.2']
-	>>> list(tab.values('a1/b2/*'))
+	>>> list(tab.scan_values('a1/b2/*'))
 	['1.2.1', '1.2.2', '1.2.3']
-	>>> list(tab.values('a1/*'))
+	>>> list(tab.scan_values('a1/*'))
 	['1.1.1', '1.1.2', '1.2.1', '1.2.2', '1.2.3']
-	>>> list(tab.values('a2/*'))
+	>>> list(tab.scan_values('a2/*'))
 	['2.1.1', '2.1.2', '2.2.1', '2.3.1']
-	>>> list(tab.values('a2/b2/*'))
+	>>> list(tab.scan_values('a2/b2/*'))
 	['2.2.1']
-	>>> list(tab.values('a3/*'))
+	>>> list(tab.scan_values('a3/*'))
 	[]
-	>>> list(tab.values('*'))
+	>>> list(tab.scan_values('*'))
 	['1.1.1', '1.1.2', '1.2.1', '1.2.2', '1.2.3', '2.1.1', '2.1.2', '2.2.1', '2.3.1']
-	>>> list(tab.values('*/b1/*'))
+	>>> list(tab.scan_values('*/b1/*'))
 	['1.1.1', '1.1.2', '2.1.1', '2.1.2']
-	>>> list(tab.values('*/c1'))
+	>>> list(tab.scan_values('*/c1'))
 	['1.1.1', '1.2.1', '2.1.1', '2.2.1', '2.3.1']
-	>>> list(tab.values('*/c3'))
+	>>> list(tab.scan_values('*/c3'))
 	['1.2.3']
-	>>> list(tab.values('*/c4'))
+	>>> list(tab.scan_values('*/c4'))
 	[]
 
-	# keys
+	# scan_keys
 
-	>>> list(tab.keys('a1/b1/*'))
+	>>> list(tab.scan_keys('a1/b1/*'))
 	['a1/b1/c1', 'a1/b1/c2']
-	>>> list(tab.keys('a1/b2/*'))
+	>>> list(tab.scan_keys('a1/b2/*'))
 	['a1/b2/c1', 'a1/b2/c2', 'a1/b2/c3']
-	>>> list(tab.keys('a1/*'))
+	>>> list(tab.scan_keys('a1/*'))
 	['a1/b1/c1', 'a1/b1/c2', 'a1/b2/c1', 'a1/b2/c2', 'a1/b2/c3']
-	>>> list(tab.keys('a2/*'))
+	>>> list(tab.scan_keys('a2/*'))
 	['a2/b1/c1', 'a2/b1/c2', 'a2/b2/c1', 'a2/b3/c1']
-	>>> list(tab.keys('a2/b2/*'))
+	>>> list(tab.scan_keys('a2/b2/*'))
 	['a2/b2/c1']
-	>>> list(tab.keys('a3/*'))
+	>>> list(tab.scan_keys('a3/*'))
 	[]
-	>>> list(tab.keys('*'))
+	>>> list(tab.scan_keys('*'))
 	['a1/b1/c1', 'a1/b1/c2', 'a1/b2/c1', 'a1/b2/c2', 'a1/b2/c3', 'a2/b1/c1', 'a2/b1/c2', 'a2/b2/c1', 'a2/b3/c1']
-	>>> list(tab.keys('*/b1/*'))
+	>>> list(tab.scan_keys('*/b1/*'))
 	['a1/b1/c1', 'a1/b1/c2', 'a2/b1/c1', 'a2/b1/c2']
-	>>> list(tab.keys('*/c1'))
+	>>> list(tab.scan_keys('*/c1'))
 	['a1/b1/c1', 'a1/b2/c1', 'a2/b1/c1', 'a2/b2/c1', 'a2/b3/c1']
-	>>> list(tab.keys('*/c3'))
+	>>> list(tab.scan_keys('*/c3'))
 	['a1/b2/c3']
-	>>> list(tab.keys('*/c4'))
+	>>> list(tab.scan_keys('*/c4'))
 	[]
 
-	# items
+	# scan_items
 
-	>>> list(tab.items('a1/b1/*'))
+	>>> list(tab.scan_items('a1/b1/*'))
 	[('a1/b1/c1', '1.1.1'), ('a1/b1/c2', '1.1.2')]
-	>>> list(tab.items('a1/b2/*'))
+	>>> list(tab.scan_items('a1/b2/*'))
 	[('a1/b2/c1', '1.2.1'), ('a1/b2/c2', '1.2.2'), ('a1/b2/c3', '1.2.3')]
-	>>> list(tab.items('a1/*'))
+	>>> list(tab.scan_items('a1/*'))
 	[('a1/b1/c1', '1.1.1'), ('a1/b1/c2', '1.1.2'), ('a1/b2/c1', '1.2.1'), ('a1/b2/c2', '1.2.2'), ('a1/b2/c3', '1.2.3')]
-	>>> list(tab.items('a2/*'))
+	>>> list(tab.scan_items('a2/*'))
 	[('a2/b1/c1', '2.1.1'), ('a2/b1/c2', '2.1.2'), ('a2/b2/c1', '2.2.1'), ('a2/b3/c1', '2.3.1')]
-	>>> list(tab.items('a2/b2/*'))
+	>>> list(tab.scan_items('a2/b2/*'))
 	[('a2/b2/c1', '2.2.1')]
-	>>> list(tab.items('a3/*'))
+	>>> list(tab.scan_items('a3/*'))
 	[]
-	>>> list(tab.items('*'))
+	>>> list(tab.scan_items('*'))
 	[('a1/b1/c1', '1.1.1'), ('a1/b1/c2', '1.1.2'), ('a1/b2/c1', '1.2.1'), ('a1/b2/c2', '1.2.2'), ('a1/b2/c3', '1.2.3'), ('a2/b1/c1', '2.1.1'), ('a2/b1/c2', '2.1.2'), ('a2/b2/c1', '2.2.1'), ('a2/b3/c1', '2.3.1')]
-	>>> list(tab.items('*/b1/*'))
+	>>> list(tab.scan_items('*/b1/*'))
 	[('a1/b1/c1', '1.1.1'), ('a1/b1/c2', '1.1.2'), ('a2/b1/c1', '2.1.1'), ('a2/b1/c2', '2.1.2')]
-	>>> list(tab.items('*/c1'))
+	>>> list(tab.scan_items('*/c1'))
 	[('a1/b1/c1', '1.1.1'), ('a1/b2/c1', '1.2.1'), ('a2/b1/c1', '2.1.1'), ('a2/b2/c1', '2.2.1'), ('a2/b3/c1', '2.3.1')]
-	>>> list(tab.items('*/c3'))
+	>>> list(tab.scan_items('*/c3'))
 	[('a1/b2/c3', '1.2.3')]
-	>>> list(tab.items('*/c4'))
+	>>> list(tab.scan_items('*/c4'))
 	[]
 
 # test_non_existing_table

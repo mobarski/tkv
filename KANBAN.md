@@ -1,9 +1,11 @@
+# ACTIVE
+
+- split methods with pattern into two: scan_xxx and xxx
 
 # TODO
 
 ## ALL
 
-- split methods with pattern into two: scan_xxx and xxx
 - sqlite -> make single table mode the default
 
 - tkv_sqlite.connect_view

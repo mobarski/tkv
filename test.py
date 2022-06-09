@@ -38,7 +38,7 @@ if __name__=="__main__":
 	import sys
 	# TODO: engines from sys.argv
 	# TODO: verbose from sys.argv
-	engines = ['sqlite']
+	engines = ['sqlite_table']
 	
 	for e in engines:
 		test_engine(e, verbose=False)

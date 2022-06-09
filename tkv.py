@@ -1,5 +1,5 @@
 __author__ = 'Maciej Obarski'
-__version__ = '0.6.5'
+__version__ = '0.6.6'
 __license__ = 'MIT'
 
 import itertools
@@ -7,20 +7,35 @@ from functools import partial
 
 class TKV:
 
-	# core
+	# core - read
 	
-	def put(self, tab, key, val):           not_implemented(self, 'put')
 	def get(self, tab, key, default=None):  not_implemented(self, 'get')
 	def has(self, tab, key):                not_implemented(self, 'has')
-	def delete(self, tab, key):             not_implemented(self, 'delete')
-	def drop(self, tab):                    not_implemented(self, 'drop')
 	def size(self, tab):                    not_implemented(self, 'size')
 	
-	# scanning
+	# core - write
 	
-	def keys(self, tab, pattern=None):      not_implemented(self, 'keys')
-	def items(self, tab, pattern=None):     not_implemented(self, 'items')
-	def count(self, tab, pattern=None):     not_implemented(self, 'count')
+	def put(self, tab, key, val):           not_implemented(self, 'put')
+	def drop(self, tab):                    not_implemented(self, 'drop')
+	def delete(self, tab, key):             not_implemented(self, 'delete')
+	
+	# iterators
+	
+	def keys(self, tab, sort=False):        not_implemented(self, 'keys')
+	def items(self, tab, sort=False):       not_implemented(self, 'items')
+	
+	def values(self, tab, sort=False):
+		return (v for k,v in self.items(tab, sort))
+	
+	# scan
+	
+	def scan_keys(self, tab, pattern, sort=False):    not_implemented(self, 'scan_keys')
+	def scan_items(self, tab, pattern, sort=False):   not_implemented(self, 'scan_items')
+	
+	def scan_values(self, tab, pattern, sort=False):
+		return (v for k,v in self.scan_items(tab, pattern, sort))
+		
+	
 	
 	# extension (can be reimplemented in the child for better performance)
 	
@@ -31,6 +46,12 @@ class TKV:
 		for k,v in items:
 			self.put(tab, k, v)
 
+	def count(self, tab):
+		return len(self.keys(tab))
+	
+	def scan_count(self, tab, pattern):
+		return len(self.scan_keys(tab, pattern))
+		
 	# sugar
 
 	def get_items(self, tab, keys, default=None):
@@ -39,9 +60,6 @@ class TKV:
 	def put_many(self, tab, keys, values):
 		self.put_items(tab, zip(keys, values))
 		
-	def values(self, tab, pattern=None):
-		return (v for k,v in self.items(tab, pattern))
-
 	# other
 
 	def table(self, tab, dumps=None, loads=None):
@@ -52,6 +70,8 @@ class TKV:
 	
 	def flush(self):
 		pass
+	
+	# ...
 	
 	def __del__(self):
 		self.flush()

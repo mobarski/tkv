@@ -55,7 +55,8 @@ db.drop('my_table')
 **Scan operations:**
 ```python
 tab = db.table('xyz')
-# ------ x y z ------ #
+# ------ x y z <-------- key part name
+# ------ 0 1 2 <-------- key part index
 tab.put('A/1/1', 'foo')
 tab.put('A/1/2', 'bar')
 tab.put('A/2/1', 'baz')
@@ -71,9 +72,9 @@ tab.scan_items('B/*')  # -> iter([('B/2/4','qux'), ('B/3/6','...')])
 **Partition by key fragment:**
 ```python	
 keys = db.keys('xyz')
-for x,keys_x in db.group_keys(keys, 0):
+for x,keys_x in db.group_keys(keys, 0):        # key part index=0 (x)
     print(x, *keys_x)
-    for y,keys_y in db.group_keys(keys_x, 1):
+    for y,keys_y in db.group_keys(keys_x, 1):  # key part index=1 (y)
         print(y, *keys_y)
 
 # prints:
