@@ -48,7 +48,6 @@ class VTKVsnowflake(tkv.VTKV):
 		sql = f'select "{db_col}" from "{self.sch}"."{db_tab}" order by "{db_key}"'
 		return self._execute(sql) # TODO
 	
-	# TODO: multicolumn support
 	def items(self, tab, sort=False):
 		db_tab, db_key, db_col = self._parse_tab(tab)
 		sql = f'select "{db_key}","{db_col}" from "{self.sch}"."{db_tab}" order by "{db_key}"'
