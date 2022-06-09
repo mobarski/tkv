@@ -280,7 +280,7 @@ class TKVsqliteview(tkv.VTKV):
 	def get(self, tab, key, default=None):
 		db_tab, db_key, db_col = self._parse_tab(tab)
 		sql = f'select "{db_col}" from "{db_tab}" where "{db_key}"=?'
-		return self._execute(sql, (key,)).fetchone()[0] # TODO
+		return self._execute(sql, (key,)).fetchone()[0]
 
 	def has(self, tab, key):
 		db_tab, db_key, db_col = self._parse_tab(tab)
@@ -295,7 +295,7 @@ class TKVsqliteview(tkv.VTKV):
 	def keys(self, tab, sort=False):
 		db_tab, db_key, db_col = self._parse_tab(tab)
 		sql = f'select "{db_col}" from "{db_tab}" order by "{db_key}"'
-		return self._execute(sql) # TODO
+		return self._execute(sql)
 	
 	def items(self, tab, sort=False):
 		db_tab, db_key, db_col = self._parse_tab(tab)
@@ -317,7 +317,7 @@ class TKVsqliteview(tkv.VTKV):
 	def count(self, tab):
 		db_tab, db_key, db_col = self._parse_tab(tab)
 		sql = f'select count(*) from "{db_tab}"'
-		return self._execute(sql).fetchone()[0] # TODO
+		return self._execute(sql).fetchone()[0]
 
 	# internal
 	
