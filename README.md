@@ -38,7 +38,6 @@ db = tkv_mongo.connect('127.0.0.1', db='tkv')
 ```python
 db.put_items('my_table', [('foo',1),('bar',2)])
 
-# iterators are ALWAYS sorted by the key!
 db.keys('my_table')   # -> iter(['bar', 'foo'])
 db.items('my_table')  # -> iter([('bar',2), ('foo',1)])
 db.values('my_table') # -> iter([2,1])
