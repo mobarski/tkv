@@ -53,7 +53,7 @@ db.drop('my_table')
 ```
 
 **Scan operations:**
-```pythons
+```python
 tab = db.table('xyz')
 # ------ x y z ------ #
 tab.put('A/1/1', 'foo')
