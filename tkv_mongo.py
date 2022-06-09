@@ -2,7 +2,7 @@ import tkv
 import pymongo
 
 # TODO: loads dumps
-# TODO: patterns
+# TODO: scan_xxx
 
 class TKVmongo(tkv.TKV):
 	
@@ -35,21 +35,15 @@ class TKVmongo(tkv.TKV):
 		except pymongo.errors.OperationFailure:
 			return 0
 		
-	# scanning
+	# iterators
 	
-	def keys(self, tab, pattern=None):
-		# TODO: pattern
+	def keys(self, tab, sort=False):
 		docs = self.db[tab].find({},[])
 		return (x['_id'] for x in docs)
 		
-	def items(self, tab, pattern=None):
-		# TODO: pattern
+	def items(self, tab, sort=False):
 		docs = self.db[tab].find({},[])
 		return ((x['_id'],x['val']) for x in docs)
-
-	def count(self, tab, pattern=None):
-		# TODO: pattern
-		return self.db[tab].count_documents({})
 
 	# extension
 
@@ -62,6 +56,9 @@ class TKVmongo(tkv.TKV):
 		batch = [pymongo.ReplaceOne({'_id':k}, {'_id':k,'val':v}, upsert=True) for k,v in items]
 		self.db[tab].bulk_write(batch)
 
+	def count(self, tab, sort=False):
+		return self.db[tab].count_documents({})
+	
 	# other
 	
 	def tables(self):
@@ -69,4 +66,3 @@ class TKVmongo(tkv.TKV):
 
 def connect(*a,**kw):
 	return TKVmongo(*a,**kw)
-

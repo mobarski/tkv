@@ -43,18 +43,12 @@ class TKVredis(tkv.TKV):
 		except:
 			return 0
 
-	# scanning
+	# iterators
 
-	def keys(self, tab, pattern=None):
-		# TODO pattern
+	def keys(self, tab, sort=False):
 		return [x.decode(self.encoding) for x in self.db.hkeys(tab)]
-		
-	def count(self, tab, pattern=None):
-		# TODO pattern
-		return self.db.hlen(tab)
-		
-	def items(self, tab, pattern=None):
-		# TODO pattern
+				
+	def items(self, tab, sort=False):
 		items = self.db.hgetall(tab)
 		items = ((x[0].decode(self.encoding),self.loads(x[1])) for x in items)
 		return items
@@ -69,6 +63,9 @@ class TKVredis(tkv.TKV):
 	def put_items(self, tab, items):
 		self.db.hmset(tab, {k:self.dumps(v) for k,v in items})
 		
+	def count(self, tab, pattern=None):
+		return self.db.hlen(tab)
+
 
 def connect(*a,**kw):
 	return TKVredis(*a,**kw)
