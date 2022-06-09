@@ -6,9 +6,9 @@
 
 **Basics**:
 ```python
-import tkv
+import tkv_sqlite
 
-db = tkv.connect('my_file.sqlite')
+db = tkv_sqlite.connect('my_file.sqlite')
 
 # simple usage
 db.put('my_table', 'foo', 'hello')
@@ -54,13 +54,7 @@ db.drop('my_table')
 
 **Scan operations:**
 ```pythons
-# TODO: db.scan_keys
-# TODO: db.scan_items
-# TODO: db.scan_values
-```
-
-**Partition by key fragment:**
-```python	
+tab = db.table('xyz')
 # ------ x y z ------ #
 tab.put('A/1/1', 'foo')
 tab.put('A/1/2', 'bar')
@@ -68,7 +62,15 @@ tab.put('A/2/1', 'baz')
 tab.put('B/2/4', 'qux')
 tab.put('B/3/6', '...')
 
-keys = tab.keys()
+tab.scan_keys('A/1/*') # -> iter(['A/1/1', 'A/1/2'])
+tab.scan_values('A/*') # -> iter(['foo', 'bar, 'baz'])
+tab.scan_items('B/*')  # -> iter([('B/2/4','qux'), ('B/3/6','...')])
+
+```
+
+**Partition by key fragment:**
+```python	
+keys = db.keys('xyz')
 for x,keys_x in db.group_keys(keys, 0):
     print(x, *keys_x)
     for y,keys_y in db.group_keys(keys_x, 1):
@@ -87,7 +89,7 @@ for x,keys_x in db.group_keys(keys, 0):
 ```python
 import pickle
 
-db = tkv.connect('my_pickle_db.sqlite',
+db = tkv_sqlite.connect('my_pickle_db.sqlite',
     dumps = pickle.dumps,
     loads = pickle.loads,
 )
