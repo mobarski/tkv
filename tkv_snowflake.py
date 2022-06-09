@@ -26,7 +26,7 @@ class VTKVsnowflake(tkv.VTKV):
 		self.dumps = None # NOT USED - required for self.table
 		self.loads = None # NOT USED - required for self.table
 	
-	# core
+	# core - read
 	
 	def get(self, tab, key, default=None):
 		db_tab, db_key, db_col = self._parse_tab(tab)
@@ -41,23 +41,19 @@ class VTKVsnowflake(tkv.VTKV):
 	def size(self, tab):
 		not_implemented(self, 'size')
 
-	# scanning
+	# iterators
 	
-	def keys(self, tab):
+	def keys(self, tab, sort=False):
 		db_tab, db_key, db_col = self._parse_tab(tab)
 		sql = f'select "{db_col}" from "{self.sch}"."{db_tab}" order by "{db_key}"'
 		return self._execute(sql) # TODO
 	
 	# TODO: multicolumn support
-	def items(self, tab):
+	def items(self, tab, sort=False):
 		db_tab, db_key, db_col = self._parse_tab(tab)
 		sql = f'select "{db_key}","{db_col}" from "{self.sch}"."{db_tab}" order by "{db_key}"'
 		return self._execute(sql) # TODO
 	
-	def count(self, tab):
-		db_tab, db_key, db_col = self._parse_tab(tab)
-		sql = f'select count(*) from "{self.sch}"."{db_tab}"'
-		return self._execute(sql).fetchone()[0] # TODO
 
 	# extension
 	
@@ -70,11 +66,13 @@ class VTKVsnowflake(tkv.VTKV):
 		else:
 			resp = dict(self._execute(sql,keys))
 		return [resp[k] if k in resp else default for k in keys]
+	
+	def count(self, tab):
+		db_tab, db_key, db_col = self._parse_tab(tab)
+		sql = f'select count(*) from "{self.sch}"."{db_tab}"'
+		return self._execute(sql).fetchone()[0] # TODO
 
 	# sugar
-	
-	def values(self, tab, pattern=None):
-		not_implemented(self, 'values')
 
 	# internal
 	
