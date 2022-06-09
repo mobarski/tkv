@@ -10,6 +10,6 @@ setup(
 	author='Maciej Obarski',
 	author_email='mobarski@gmail.com',
 	license='MIT',
-	py_modules=['tkv','tkv_sqlite','tkv_redis','tkv_mongo','tkv_snowflake'],
+	py_modules=['tkv','tkv_sqlite','tkv_redis','tkv_mongo','tkv_snowflake','tkv_duckdb'],
 	platforms='any',
 )
