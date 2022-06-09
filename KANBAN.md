@@ -1,6 +1,6 @@
 # ACTIVE
 
-- split methods with pattern into two: scan_xxx and xxx
+- tkv_sqlite.connect_view
 
 # TODO
 
@@ -8,7 +8,6 @@
 
 - sqlite -> make single table mode the default
 
-- tkv_sqlite.connect_view
 - stage_items(tab, items) -> drop(tab),put_items(tab, items)? set_items? stage_table?
 - view -> common table expression as source table db.table('users/id/total_value', cte='select id,sum(value) as total_value from user_transactions group by id')
 - test_view.txt
@@ -38,6 +37,7 @@
 
 # DONE
 
+- split methods with pattern into two: scan_xxx and xxx
 - split tkv into tkv and tkv_sqlite
 - move this todo list into KANBAN.md
 

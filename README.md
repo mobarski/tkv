@@ -12,11 +12,9 @@ db = tkv_sqlite.connect('my_file.sqlite')
 
 # simple usage
 db.put('my_table', 'foo', 'hello')
-x = db.get('my_table', 'foo')     # x = 'hello'
-y = db.get('my_table', 'bar', -1) # y = -1
-z = db.count('my_table')          # z = 1
+x = db.get('my_table', 'foo') # x = 'hello'
 
-# table example
+# table object
 tab = db.table('my_table')
 x = tab.get('foo')     # x = 'hello'
 y = tab.get('bar', -1) # y = -1
