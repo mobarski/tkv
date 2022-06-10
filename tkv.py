@@ -11,7 +11,6 @@ class TKV:
 	
 	def get(self, tab, key, default=None):  not_implemented(self, 'get')
 	def has(self, tab, key):                not_implemented(self, 'has')
-	def size(self, tab):                    not_implemented(self, 'size')
 	
 	# core - write
 	
@@ -22,7 +21,9 @@ class TKV:
 	# iterators
 	
 	def keys(self, tab, sort=False):        not_implemented(self, 'keys')
-	def items(self, tab, sort=False):       not_implemented(self, 'items')
+	
+	def items(self, tab, sort=False):
+		return (self.get(tab, k) for k in self.keys(tab))
 	
 	def values(self, tab, sort=False):
 		return (v for k,v in self.items(tab, sort))
@@ -30,7 +31,9 @@ class TKV:
 	# scan
 	
 	def scan_keys(self, tab, pattern, sort=False):    not_implemented(self, 'scan_keys')
-	def scan_items(self, tab, pattern, sort=False):   not_implemented(self, 'scan_items')
+	
+	def scan_items(self, tab, pattern, sort=False):
+		return ((k,self.get(tab,k)) for k in self.scan_keys(tab, pattern, sort))
 	
 	def scan_values(self, tab, pattern, sort=False):
 		return (v for k,v in self.scan_items(tab, pattern, sort))
@@ -47,10 +50,10 @@ class TKV:
 			self.put(tab, k, v)
 
 	def count(self, tab):
-		return len(self.keys(tab))
+		return iter_len(self.keys(tab))
 	
 	def scan_count(self, tab, pattern):
-		return len(self.scan_keys(tab, pattern))
+		return iter_len(self.scan_keys(tab, pattern))
 		
 	# sugar
 
@@ -62,12 +65,12 @@ class TKV:
 		
 	# other
 
+	def size(self, tab):  not_implemented(self, 'size')
+	def tables(self):     not_implemented(self, 'tables')
+	
 	def table(self, tab, dumps=None, loads=None):
 		return KV(tab, self, dumps, loads)
 
-	def tables(self):
-		not_implemented(self, 'tables')
-	
 	def flush(self):
 		pass
 	
@@ -101,6 +104,11 @@ class VTKV(TKV):
 	> get('cities/id/lat,lon', 1) # select lat,lon from cities where id=1
 	"""
 
+def iter_len(iterable):
+	cnt = 0
+	for _ in iterable:
+		cnt += 1
+	return cnt
 
 def not_implemented(self, method_name):
 	raise NotImplementedError(f'{self.__class__.__name__}.{method_name}')

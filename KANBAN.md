@@ -3,11 +3,13 @@
 
 ## NEXT
 
-- stage_items(tab, items) -> drop(tab),put_items(tab, items)? set_items? stage_table?
+- stage_items(tab, items) - for testing views -> drop(tab),put_items(tab, items)? set_items? stage_table?
 - sqlite -> make single table mode the default
 - test_view.txt
 - tkv_duckdb.connect_view
 - view -> common table expression as source table db.table('users/id/total_value', cte='select id,sum(value) as total_value from user_transactions group by id')
+- move tkv_xxx.py to tkv package (tkv.xxx)
+- reorder methods in all classes to match TKV
 
 ## REST
 
@@ -20,7 +22,6 @@
 - mongo - scan.xxx_pattern
 - scan_xxx (pattern) working exactly the same on all DB engines
 
-- move tkv_xxx.py to tkv package (tkv.xxx)
 - docs - api
 - tkv_elastic
 - tkv_annoy or tkv_faiss interface
