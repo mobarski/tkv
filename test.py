@@ -5,9 +5,9 @@ def test_engine(e, verbose=False):
 		import tkv_sqlite
 		db = tkv_sqlite.connect()
 
-	elif e == 'sqlite_table':
+	elif e == 'sqlite_alt':
 		import tkv_sqlite
-		db = tkv_sqlite.connect_table()
+		db = tkv_sqlite.connect_alt()
 	
 	elif e == 'duckdb':
 		import tkv_duckdb

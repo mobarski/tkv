@@ -118,9 +118,9 @@ if __name__=="__main__":
 		except (FileNotFoundError,OSError):
 			pass
 	else:
-		label = 'sqlite_table/mem'
+		label = 'sqlite/mem'
 		db_path = ':memory:'
-	db = tkv.connect_table(db_path)
+	db = tkv.connect(db_path)
 	
 	seed(42)
 	benchmark(db,

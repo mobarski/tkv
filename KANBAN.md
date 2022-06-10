@@ -3,8 +3,8 @@
 
 ## NEXT
 
-- stage_items(tab, items) - for testing views -> drop(tab),put_items(tab, items)? set_items? stage_table?
 - sqlite -> make single table mode the default
+- stage_items(tab, items) - for testing views -> drop(tab),put_items(tab, items)? set_items? stage_table?
 - test_view.txt
 - tkv_duckdb.connect_view
 - view -> common table expression as source table db.table('users/id/total_value', cte='select id,sum(value) as total_value from user_transactions group by id')
