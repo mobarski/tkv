@@ -38,23 +38,32 @@ class TKV:
 	def scan_values(self, tab, pattern, sort=False):
 		return (v for k,v in self.scan_items(tab, pattern, sort))
 		
+	def scan_count(self, tab, pattern):
+		return iter_len(self.scan_keys(tab, pattern))
 	
-	
-	# extension (can be reimplemented in the child for better performance)
+	# other - read
+
+	def size(self, tab):  not_implemented(self, 'size')
+	def tables(self):     not_implemented(self, 'tables')
 	
 	def get_many(self, tab, keys, default=None):
 		return [self.get(tab, key, default) for key in keys]
 				
+	def count(self, tab):
+		return iter_len(self.keys(tab))
+			
+	def table(self, tab, dumps=None, loads=None):
+		return KV(tab, self, dumps, loads)
+	
+	# other - write
+
 	def put_items(self, tab, items):
 		for k,v in items:
 			self.put(tab, k, v)
 
-	def count(self, tab):
-		return iter_len(self.keys(tab))
-	
-	def scan_count(self, tab, pattern):
-		return iter_len(self.scan_keys(tab, pattern))
-		
+	def flush(self):
+		pass # might not be needed in some engines
+
 	# sugar
 
 	def get_items(self, tab, keys, default=None):
@@ -63,17 +72,6 @@ class TKV:
 	def put_many(self, tab, keys, values):
 		self.put_items(tab, zip(keys, values))
 		
-	# other
-
-	def size(self, tab):  not_implemented(self, 'size')
-	def tables(self):     not_implemented(self, 'tables')
-	
-	def table(self, tab, dumps=None, loads=None):
-		return KV(tab, self, dumps, loads)
-
-	def flush(self):
-		pass
-	
 	# ...
 	
 	def __del__(self):
