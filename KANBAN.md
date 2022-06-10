@@ -3,7 +3,6 @@
 
 ## NEXT
 
-- sqlite -> make single table mode the default
 - stage_items(tab, items) - for testing views -> drop(tab),put_items(tab, items)? set_items? stage_table?
 - test_view.txt
 - tkv_duckdb.connect_view
@@ -34,6 +33,7 @@
 
 # DONE
 
+- sqlite -> make single table mode the default
 - tkv_duckdb.connect
 - tkv_sqlite.connect_view
 - split methods with pattern into two: scan_xxx and xxx
