@@ -87,12 +87,13 @@ class KV:
 	def __init__(self, tab, tkv, dumps, loads):
 		self.dumps = dumps or tkv.dumps
 		self.loads = loads or tkv.loads
-		_tkv = copy(tkv)
-		_tkv.dumps = self.dumps
-		_tkv.loads = self.loads
+		self.tab = tab
+		self.tkv = copy(tkv)
+		self.tkv.dumps = self.dumps
+		self.tkv.loads = self.loads
 		methods = [x for x in dir(TKV) if x[0]!='_' and x not in ['tables','group_keys','flush','db','tab']]
 		for m in methods:
-			setattr(self, m, partial(getattr(_tkv, m), tab))
+			setattr(self, m, partial(getattr(self.tkv, m), tab))
 
 # WIP
 class VTKV(TKV):

@@ -130,17 +130,25 @@ class TKVsqliteview(tkv.VTKV):
 		self.db = sqlite3.connect(path, **kw)
 		self.sep_tab = '/'
 		self.sep_col = ','
+		self.cte = ''
 		self.dumps = None # NOT USED - required for self.table
 		self.loads = None # NOT USED - required for self.table
+	
+	def _get_sql_with_cte(self, sql, tab):
+		db_tab, db_key, db_col = self._parse_tab(tab)
+		before = f'with "{db_tab}" as ({self.cte})' if self.cte else ''
+		return before + ' ' + sql
 	
 	def get(self, tab, key, default=None):
 		db_tab, db_key, db_col = self._parse_tab(tab)
 		sql = f'select "{db_col}" from "{db_tab}" where "{db_key}"=?'
+		sql = self._get_sql_with_cte(sql, tab)
 		return self._execute(sql, (key,)).fetchone()[0]
 
 	def has(self, tab, key):
 		db_tab, db_key, db_col = self._parse_tab(tab)
 		sql = f'select "{db_key}" from "{db_tab}" where "{db_key}"=?'
+		sql = self._get_sql_with_cte(sql, tab)
 		return bool(self._execute(sql, (key,)).fetchone())
 
 	def size(self, tab):
@@ -151,12 +159,17 @@ class TKVsqliteview(tkv.VTKV):
 	def keys(self, tab, sort=False):
 		db_tab, db_key, db_col = self._parse_tab(tab)
 		sql = f'select "{db_col}" from "{db_tab}" order by "{db_key}"'
-		return self._execute(sql)
+		sql = self._get_sql_with_cte(sql, tab)
+		return (x[0] for x in self._execute(sql))
 	
 	def items(self, tab, sort=False):
 		db_tab, db_key, db_col = self._parse_tab(tab)
 		sql = f'select "{db_key}","{db_col}" from "{db_tab}" order by "{db_key}"'
-		return ((x[0],x[1:]) for x in self._execute(sql))
+		sql = self._get_sql_with_cte(sql, tab)
+		if self.sep_col in db_col:
+			return ((x[0],x[1:]) for x in self._execute(sql))
+		else:
+			return ((x[0],x[1]) for x in self._execute(sql))
 
 	# extension
 	
@@ -164,6 +177,7 @@ class TKVsqliteview(tkv.VTKV):
 		db_tab, db_key, db_col = self._parse_tab(tab)
 		placeholders = self.sep_col.join(['?']*len(keys))
 		sql = f'select "{db_key}","{db_col}" from "{db_tab}" where "{db_key}" in ({placeholders})'
+		sql = self._get_sql_with_cte(sql, tab)
 		if self.sep_col in db_col: # support for multicolumn values
 			resp = {x[0]:x[1:] for x in self._execute(sql,keys)}
 		else:
@@ -173,6 +187,7 @@ class TKVsqliteview(tkv.VTKV):
 	def count(self, tab):
 		db_tab, db_key, db_col = self._parse_tab(tab)
 		sql = f'select count(*) from "{db_tab}"'
+		sql = self._get_sql_with_cte(sql, tab)
 		return self._execute(sql).fetchone()[0]
 
 	# internal
@@ -188,6 +203,11 @@ class TKVsqliteview(tkv.VTKV):
 		results = self.db.execute(sql,*a)
 		# columns = [x.name.lower() for x in cur.description]
 		return results
+	
+	def table(self, table, cte=''):
+		tab = tkv.TKV.table(self, table)
+		tab.tkv.cte = cte
+		return tab
 
 
 class TKVsqlitedb(tkv.TKV):
@@ -343,3 +363,18 @@ def connect_alt(*a,**kw):
 
 def connect_view(*a,**kw):
 	return TKVsqliteview(*a,**kw)
+
+if __name__=="__main__":
+	db = connect_view(':memory:')
+	db.db.execute('create table abc (a,b,c)')
+	db.db.execute('insert into abc values (1,11,111)')
+	db.db.execute('insert into abc values (2,22,222)')
+	db.db.execute('insert into abc values (3,33,333)')
+	db.db.execute('insert into abc values (4,44,444)')
+	tab = db.table('xxx/k/v', cte='select a as k,b+c as v from abc')
+	#tab = db.table('abc/a/b')
+	print(tab.get(1))
+	print(list(tab.keys()))
+	print(list(tab.items()))
+	print(list(tab.values()))
+	
