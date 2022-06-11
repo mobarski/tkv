@@ -21,6 +21,7 @@
 - docs - api
 - tkv_elastic
 - tkv_annoy or tkv_faiss interface
+- tkv_hive / tkv_spark
 
 ## TBD
 
