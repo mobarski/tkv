@@ -203,11 +203,31 @@ class TKVsqliteview(tkv.VTKV):
 		results = self.db.execute(sql,*a)
 		# columns = [x.name.lower() for x in cur.description]
 		return results
+
+	def _execute_many(self, sql, *args):
+		print('SQL>',sql)
+		results = self.db.executemany(sql, *args)
+		return results
 	
-	def table(self, table, cte=''):
+	def table(self, table, sql=''):
 		tab = tkv.TKV.table(self, table)
-		tab.tkv.cte = cte
+		tab.tkv.cte = sql
 		return tab
+
+	# experimental
+	
+	def stage_items(self, table, items):
+		tab,key,col = table.upper().split(self.sep_tab)[:3]
+		cols = col.split(self.sep_col)
+		sql = f'drop table if exists "{tab}"'
+		self._execute(sql)
+		sep = f'"{self.sep_col}"'
+		sql = f'create table "{tab}"("{key}" primary key,"{sep.join(cols)}") without rowid'
+		self._execute(sql)
+		placeholders = ','.join(['?']*(len(cols)+1))
+		sql = f'insert into "{tab}" values({placeholders})'
+		flat_items = [(x[0],*x[1]) for x in items] if len(cols)>1 else items
+		self._execute_many(sql, flat_items)
 
 
 class TKVsqlitedb(tkv.TKV):
@@ -352,8 +372,7 @@ class TKVsqlitedb(tkv.TKV):
 	def _create(self, tab):
 		sql = f'create table if not exists "{tab}" (key text primary key, val) without rowid'
 		self._execute(sql)
-
-
+	
 
 def connect(*a,**kw):
 	return TKVsqlitetable(*a,**kw)
@@ -371,10 +390,14 @@ if __name__=="__main__":
 	db.db.execute('insert into abc values (2,22,222)')
 	db.db.execute('insert into abc values (3,33,333)')
 	db.db.execute('insert into abc values (4,44,444)')
-	tab = db.table('xxx/k/v', cte='select a as k,b+c as v from abc')
+	tab = db.table('xxx/k/v', sql='select a as k,b+c as v from abc')
 	#tab = db.table('abc/a/b')
 	print(tab.get(1))
 	print(list(tab.keys()))
 	print(list(tab.items()))
 	print(list(tab.values()))
+	db.stage_items('aaa/k/a,b,c', [(1,(11,22,33)),(2,(22,33,44))])
+	print(list(db.db.execute('select * from aaa')))
+	db.stage_items('bbb/k/a', [(1,11),(2,22)])
+	print(list(db.db.execute('select * from bbb')))
 	
