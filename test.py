@@ -8,6 +8,9 @@ def test_engine(e, verbose=False):
 	elif e == 'sqlite_alt':
 		import tkv_sqlite
 		db = tkv_sqlite.connect_alt()
+	elif e == 'sqlite_view':
+		import tkv_sqlite
+		db = tkv_sqlite.connect_view()
 	
 	elif e == 'duckdb':
 		import tkv_duckdb
@@ -36,13 +39,15 @@ def test_engine(e, verbose=False):
 	else:
 		raise Exception(f'Unknown engine: {e}')
 	#
-	doctest.testfile('test.txt', name=e, globs={'db':db}, verbose=verbose)
+	suite = 'test_view.txt' if 'view' in e else 'test.txt'
+	doctest.testfile(suite, name=e, globs={'db':db}, verbose=verbose)
 
 if __name__=="__main__":
 	import sys
 	# TODO: engines from sys.argv
 	# TODO: verbose from sys.argv
-	engines = ['duckdb']
+	engines = ['sqlite_view']
+	
 	
 	for e in engines:
 		test_engine(e, verbose=False)

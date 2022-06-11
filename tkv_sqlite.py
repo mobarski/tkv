@@ -126,7 +126,7 @@ class TKVsqlitetable(tkv.TKV):
 
 class TKVsqliteview(tkv.VTKV):
 	
-	def __init__(self, path, **kw):
+	def __init__(self, path=':memory:', **kw):
 		self.db = sqlite3.connect(path, **kw)
 		self.sep_tab = '/'
 		self.sep_col = ','
@@ -143,7 +143,10 @@ class TKVsqliteview(tkv.VTKV):
 		db_tab, db_key, db_col = self._parse_tab(tab)
 		sql = f'select "{db_col}" from "{db_tab}" where "{db_key}"=?'
 		sql = self._get_sql_with_cte(sql, tab)
-		return self._execute(sql, (key,)).fetchone()[0]
+		if self.sep_col in db_col:
+			return self._execute(sql, (key,)).fetchone()
+		else:
+			return self._execute(sql, (key,)).fetchone()[0]
 
 	def has(self, tab, key):
 		db_tab, db_key, db_col = self._parse_tab(tab)
@@ -199,13 +202,13 @@ class TKVsqliteview(tkv.VTKV):
 		return tab,key,col
 		
 	def _execute(self, sql, *a):
-		print('SQL>',sql) # xxx
+		#print('SQL>',sql) # xxx
 		results = self.db.execute(sql,*a)
 		# columns = [x.name.lower() for x in cur.description]
 		return results
 
 	def _execute_many(self, sql, *args):
-		print('SQL>',sql)
+		#print('SQL>',sql)
 		results = self.db.executemany(sql, *args)
 		return results
 	
