@@ -1,0 +1,25 @@
+#
+	>>> db.stage_items('a/k/x,y,z', [(1,(11,111,333)),(2,(22,222,666)),(3,(33,333,999))])
+	
+	>>> a1 = db.table('a/k/z')
+	>>> a1.get(1)
+	333
+	>>> a1.get(2)
+	666
+	>>> list(a1.items(sort=True))
+	[(1, 333), (2, 666), (3, 999)]
+	>>> a1.get_many([3,1,2])
+	[999, 333, 666]
+	
+	>>> a2 = db.table('a/k/y,x')
+	>>> a2.get(3)
+	(333, 33)
+	>>> list(a2.values(sort=True))
+	[(111, 11), (222, 22), (333, 33)]
+	
+	>>> a3 = db.table('aa/k/xy,zz', sql='select k, x+y as xy, z+z as zz from a')
+	>>> a3.get(1)
+	(122, 666)
+	>>> a3.get(3)
+	(366, 1998)
+
