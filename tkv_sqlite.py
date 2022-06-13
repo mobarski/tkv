@@ -194,13 +194,7 @@ class TKVsqliteview(tkv.VTKV):
 		return self._execute(sql).fetchone()[0]
 
 	# internal
-	
-	def _parse_tab(self, tab):
-		tab,key,col = tab.upper().split(self.sep_tab)[:3]
-		if self.sep_col in col: # support for multicolumn values
-			col = col.replace(self.sep_col,f'"{self.sep_col}"')
-		return tab,key,col
-		
+			
 	def _execute(self, sql, *a):
 		#print('SQL>',sql) # xxx
 		results = self.db.execute(sql,*a)

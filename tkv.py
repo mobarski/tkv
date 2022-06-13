@@ -102,6 +102,13 @@ class VTKV(TKV):
 	> get('users/uid/name', 42)   # select name    from users  where uid=42
 	> get('cities/id/lat,lon', 1) # select lat,lon from cities where id=1
 	"""
+	
+	def _parse_tab(self, tab):
+		tab,key,col = tab.upper().split(self.sep_tab)[:3]
+		if self.sep_col in col: # support for multicolumn values
+			col = col.replace(self.sep_col,f'"{self.sep_col}"')
+		return tab,key,col
+
 
 def iter_len(iterable):
 	cnt = 0

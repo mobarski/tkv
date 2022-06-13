@@ -23,6 +23,7 @@ class VTKVsnowflake(tkv.VTKV):
 		self.sch = sch
 		self.sep_tab = '/'
 		self.sep_col = ','
+		self.cte = ''
 		self.dumps = None # NOT USED - required for self.table
 		self.loads = None # NOT USED - required for self.table
 	
@@ -31,11 +32,13 @@ class VTKVsnowflake(tkv.VTKV):
 	def get(self, tab, key, default=None):
 		db_tab, db_key, db_col = self._parse_tab(tab)
 		sql = f'select "{db_col}" from "{self.sch}"."{db_tab}" where "{db_key}"=%s'
+		sql = self._get_sql_with_cte(sql, tab)
 		return self._execute(sql, (key,)).fetchone()[0] # TODO
 
 	def has(self, tab, key):
 		db_tab, db_key, db_col = self._parse_tab(tab)
 		sql = f'select "{db_key}" from "{self.sch}"."{db_tab}" where "{db_key}"=%s'
+		sql = self._get_sql_with_cte(sql, tab)
 		return bool(self._execute(sql, (key,)).fetchone())
 
 	def size(self, tab):
@@ -46,11 +49,13 @@ class VTKVsnowflake(tkv.VTKV):
 	def keys(self, tab, sort=False):
 		db_tab, db_key, db_col = self._parse_tab(tab)
 		sql = f'select "{db_col}" from "{self.sch}"."{db_tab}" order by "{db_key}"'
+		sql = self._get_sql_with_cte(sql, tab)
 		return self._execute(sql)
 	
 	def items(self, tab, sort=False):
 		db_tab, db_key, db_col = self._parse_tab(tab)
 		sql = f'select "{db_key}","{db_col}" from "{self.sch}"."{db_tab}" order by "{db_key}"'
+		sql = self._get_sql_with_cte(sql, tab)
 		return ((x[0],x[1:]) for x in self._execute(sql))
 	
 
@@ -60,6 +65,7 @@ class VTKVsnowflake(tkv.VTKV):
 		db_tab, db_key, db_col = self._parse_tab(tab)
 		placeholders = self.sep_col.join(['%s']*len(keys))
 		sql = f'select "{db_key}","{db_col}" from "{self.sch}"."{db_tab}" where "{db_key}" in ({placeholders})'
+		sql = self._get_sql_with_cte(sql, tab)
 		if self.sep_col in db_col: # support for multicolumn values
 			resp = {x[0]:x[1:] for x in self._execute(sql,keys)}
 		else:
@@ -69,24 +75,24 @@ class VTKVsnowflake(tkv.VTKV):
 	def count(self, tab):
 		db_tab, db_key, db_col = self._parse_tab(tab)
 		sql = f'select count(*) from "{self.sch}"."{db_tab}"'
+		sql = self._get_sql_with_cte(sql, tab)
 		return self._execute(sql).fetchone()[0] # TODO
 
 	# sugar
 
 	# internal
 	
-	def _parse_tab(self, tab):
-		tab,key,col = tab.upper().split(self.sep_tab)[:3]
-		if self.sep_col in col: # support for multicolumn values
-			col = col.replace(self.sep_col,f'"{self.sep_col}"')
-		return tab,key,col
-		
 	def _execute(self, sql, *a):
 		print('SQL>',sql) # xxx
 		cur = self.db.cursor()
-		results = cur.execute(sql,*a)
+		results = cur.execute(sql,*a),0
 		# columns = [x.name.lower() for x in cur.description]
 		return results
+
+	def table(self, table, sql=''):
+		tab = tkv.TKV.table(self, table)
+		tab.tkv.cte = sql
+		return tab
 
 
 def connect_view(**kw):

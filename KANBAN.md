@@ -4,6 +4,7 @@
 ## NEXT
 
 - tkv_duckdb.connect_view
+- remove group keys from api/tests?
 - move tkv_xxx.py to tkv package (tkv.xxx)
 - reorder methods in all classes to match TKV
 
@@ -25,7 +26,6 @@
 
 ## TBD
 
-- remove group keys from api/tests?
 - limit - optional argument to iterators?
 - compression: example, api?
 - DB client configuration via single dict and not kwargs?
