@@ -15,29 +15,24 @@ https://community.snowflake.com/s/question/0D50Z00008BDIPTSA5/snowflake-oltp
 import snowflake.connector
 import tkv
 
-# TODO: multicolumn keys
 class VTKVsnowflake(tkv.VTKV):
 	
 	def __init__(self, sch, **kw):
 		self.db = snowflake.connector.connect(**kw)
 		self.sch = sch
-		self.sep_tab = '/'
-		self.sep_col = ','
-		self.cte = ''
-		self.dumps = None # NOT USED - required for self.table
-		self.loads = None # NOT USED - required for self.table
+		self.placeholder = '%s'
 	
 	# core - read
 	
 	def get(self, tab, key, default=None):
 		db_tab, db_key, db_col = self._parse_tab(tab)
-		sql = f'select "{db_col}" from "{self.sch}"."{db_tab}" where "{db_key}"=%s'
+		sql = f'select "{db_col}" from "{self.sch}"."{db_tab}" where "{db_key}"={self.placeholder}'
 		sql = self._get_sql_with_cte(sql, tab)
 		return self._execute(sql, (key,)).fetchone()[0] # TODO
 
 	def has(self, tab, key):
 		db_tab, db_key, db_col = self._parse_tab(tab)
-		sql = f'select "{db_key}" from "{self.sch}"."{db_tab}" where "{db_key}"=%s'
+		sql = f'select "{db_key}" from "{self.sch}"."{db_tab}" where "{db_key}"={self.placeholder}'
 		sql = self._get_sql_with_cte(sql, tab)
 		return bool(self._execute(sql, (key,)).fetchone())
 
@@ -63,7 +58,7 @@ class VTKVsnowflake(tkv.VTKV):
 	
 	def get_many(self, tab, keys, default=None):
 		db_tab, db_key, db_col = self._parse_tab(tab)
-		placeholders = self.sep_col.join(['%s']*len(keys))
+		placeholders = self._get_placeholders(len(keys))
 		sql = f'select "{db_key}","{db_col}" from "{self.sch}"."{db_tab}" where "{db_key}" in ({placeholders})'
 		sql = self._get_sql_with_cte(sql, tab)
 		if self.sep_col in db_col: # support for multicolumn values
@@ -85,7 +80,7 @@ class VTKVsnowflake(tkv.VTKV):
 	def _execute(self, sql, *a):
 		print('SQL>',sql) # xxx
 		cur = self.db.cursor()
-		results = cur.execute(sql,*a),0
+		results = cur.execute(sql,*a)
 		# columns = [x.name.lower() for x in cur.description]
 		return results
 
@@ -95,5 +90,20 @@ class VTKVsnowflake(tkv.VTKV):
 		return tab
 
 
+class VTKVsnowflake2(tkv.VTKV):
+	placeholder = '%s'
+	
+	def __init__(self, **kw):
+		self.db = snowflake.connector.connect(**kw).cursor()
+		if 'db' in kw:
+			self._execute(f'use database {kw["db"]}')
+		if 'sch' in kw:
+			self._execute(f'use schema {kw["sch"]}')
+	
+	# experimental
+
 def connect_view(**kw):
 	db = VTKVsnowflake(**kw)
+
+def connect_view2(**kw):
+	db = VTKVsnowflake2(**kw)
