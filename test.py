@@ -8,6 +8,7 @@ def test_engine(e, verbose=False):
 	elif e == 'sqlite_alt':
 		import tkv_sqlite
 		db = tkv_sqlite.connect_alt()
+
 	elif e == 'sqlite_view':
 		import tkv_sqlite
 		db = tkv_sqlite.connect_view()
@@ -15,6 +16,10 @@ def test_engine(e, verbose=False):
 	elif e == 'duckdb':
 		import tkv_duckdb
 		db = tkv_duckdb.connect()
+
+	elif e == 'duckdb_view':
+		import tkv_duckdb
+		db = tkv_duckdb.connect_view()
 	
 	elif e == 'redis':
 		import tkv_redis
@@ -44,10 +49,10 @@ def test_engine(e, verbose=False):
 
 if __name__=="__main__":
 	import sys
-	# TODO: engines from sys.argv
-	# TODO: verbose from sys.argv
-	engines = ['sqlite_view']
-	
+	engines = sys.argv[1:]
+	if not engines:
+		print('USAGE: test.py engine1 engine2 ...')
 	
 	for e in engines:
+		print(f'testing: {e}')
 		test_engine(e, verbose=False)

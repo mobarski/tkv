@@ -128,100 +128,22 @@ class TKVsqliteview(tkv.VTKV):
 	
 	def __init__(self, path=':memory:', **kw):
 		self.db = sqlite3.connect(path, **kw)
-		self.sep_tab = '/'
-		self.sep_col = ','
-		self.cte = ''
-		self.dumps = None # NOT USED - required for self.table
-		self.loads = None # NOT USED - required for self.table
-	
-	def _get_sql_with_cte(self, sql, tab):
-		db_tab, db_key, db_col = self._parse_tab(tab)
-		before = f'with "{db_tab}" as ({self.cte})' if self.cte else ''
-		return before + ' ' + sql
-	
-	def get(self, tab, key, default=None):
-		db_tab, db_key, db_col = self._parse_tab(tab)
-		sql = f'select "{db_col}" from "{db_tab}" where "{db_key}"=?'
-		sql = self._get_sql_with_cte(sql, tab)
-		if self.sep_col in db_col:
-			return self._execute(sql, (key,)).fetchone()
-		else:
-			return self._execute(sql, (key,)).fetchone()[0]
-
-	def has(self, tab, key):
-		db_tab, db_key, db_col = self._parse_tab(tab)
-		sql = f'select "{db_key}" from "{db_tab}" where "{db_key}"=?'
-		sql = self._get_sql_with_cte(sql, tab)
-		return bool(self._execute(sql, (key,)).fetchone())
-
-	def size(self, tab):
-		not_implemented(self, 'size')
-
-	# iterators
-	
-	def keys(self, tab, sort=False):
-		db_tab, db_key, db_col = self._parse_tab(tab)
-		sql = f'select "{db_col}" from "{db_tab}" order by "{db_key}"'
-		sql = self._get_sql_with_cte(sql, tab)
-		return (x[0] for x in self._execute(sql))
-	
-	def items(self, tab, sort=False):
-		db_tab, db_key, db_col = self._parse_tab(tab)
-		sql = f'select "{db_key}","{db_col}" from "{db_tab}" order by "{db_key}"'
-		sql = self._get_sql_with_cte(sql, tab)
-		if self.sep_col in db_col:
-			return ((x[0],x[1:]) for x in self._execute(sql))
-		else:
-			return ((x[0],x[1]) for x in self._execute(sql))
-
-	# extension
-	
-	def get_many(self, tab, keys, default=None):
-		db_tab, db_key, db_col = self._parse_tab(tab)
-		placeholders = self.sep_col.join(['?']*len(keys))
-		sql = f'select "{db_key}","{db_col}" from "{db_tab}" where "{db_key}" in ({placeholders})'
-		sql = self._get_sql_with_cte(sql, tab)
-		if self.sep_col in db_col: # support for multicolumn values
-			resp = {x[0]:x[1:] for x in self._execute(sql,keys)}
-		else:
-			resp = dict(self._execute(sql,keys))
-		return [resp[k] if k in resp else default for k in keys]
-	
-	def count(self, tab):
-		db_tab, db_key, db_col = self._parse_tab(tab)
-		sql = f'select count(*) from "{db_tab}"'
-		sql = self._get_sql_with_cte(sql, tab)
-		return self._execute(sql).fetchone()[0]
-
-	# internal
-			
-	def _execute(self, sql, *a):
-		#print('SQL>',sql) # xxx
-		results = self.db.execute(sql,*a)
-		# columns = [x.name.lower() for x in cur.description]
-		return results
-
-	def _execute_many(self, sql, *args):
-		#print('SQL>',sql)
-		results = self.db.executemany(sql, *args)
-		return results
-	
-	def table(self, table, sql=''):
-		tab = tkv.TKV.table(self, table)
-		tab.tkv.cte = sql
-		return tab
 
 	# experimental
 	
 	def stage_items(self, table, items):
+		if not items: return
 		tab,key,col = table.upper().split(self.sep_tab)[:3]
 		cols = col.split(self.sep_col)
+		#
+		columns = ','.join([f'"{c}"' for c in cols])
 		sql = f'drop table if exists "{tab}"'
 		self._execute(sql)
 		sep = f'"{self.sep_col}"'
-		sql = f'create table "{tab}"("{key}" primary key,"{sep.join(cols)}") without rowid'
+		sql = f'create table "{tab}"("{key}" primary key, {columns}) without rowid'
 		self._execute(sql)
-		placeholders = ','.join(['?']*(len(cols)+1))
+		#
+		placeholders = self._get_placeholders(len(cols)+1)
 		sql = f'insert into "{tab}" values({placeholders})'
 		flat_items = [(x[0],*x[1]) for x in items] if len(cols)>1 else items
 		self._execute_many(sql, flat_items)

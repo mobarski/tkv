@@ -102,12 +102,106 @@ class VTKV(TKV):
 	> get('users/uid/name', 42)   # select name    from users  where uid=42
 	> get('cities/id/lat,lon', 1) # select lat,lon from cities where id=1
 	"""
+
+	placeholder = '?'
+	#
+	sep_tab = '/'
+	sep_col = ','
+	cte = ''
+	dumps = None # NOT USED - required for self.table
+	loads = None # NOT USED - required for self.table
+
+	# core
+
+	def get(self, tab, key, default=None):
+		db_tab, db_key, db_col = self._parse_tab(tab)
+		sql = f'select "{db_col}" from "{db_tab}" where "{db_key}"={self.placeholder}'
+		sql = self._get_sql_with_cte(sql, tab)
+		if self.sep_col in db_col:
+			return self._execute_fetchone(sql, (key,))
+		else:
+			return self._execute_fetchone(sql, (key,))[0]
+
+	def has(self, tab, key):
+		db_tab, db_key, db_col = self._parse_tab(tab)
+		sql = f'select "{db_key}" from "{db_tab}" where "{db_key}"={self.placeholder}'
+		sql = self._get_sql_with_cte(sql, tab)
+		return bool(self._execute_fetchone(sql, (key,)))
+
+	def size(self, tab):
+		not_implemented(self, 'size')
+
+	# iterators
+	
+	def keys(self, tab, sort=False):
+		db_tab, db_key, db_col = self._parse_tab(tab)
+		sql = f'select "{db_col}" from "{db_tab}" order by "{db_key}"'
+		sql = self._get_sql_with_cte(sql, tab)
+		return (x[0] for x in self._execute(sql))
+	
+	def items(self, tab, sort=False):
+		db_tab, db_key, db_col = self._parse_tab(tab)
+		sql = f'select "{db_key}","{db_col}" from "{db_tab}" order by "{db_key}"'
+		sql = self._get_sql_with_cte(sql, tab)
+		if self.sep_col in db_col:
+			return ((x[0],x[1:]) for x in self._execute(sql))
+		else:
+			return ((x[0],x[1]) for x in self._execute(sql))
+
+	# extension
+	
+	def get_many(self, tab, keys, default=None):
+		db_tab, db_key, db_col = self._parse_tab(tab)
+		placeholders = self._get_placeholders(len(keys))
+		sql = f'select "{db_key}","{db_col}" from "{db_tab}" where "{db_key}" in ({placeholders})'
+		sql = self._get_sql_with_cte(sql, tab)
+		if self.sep_col in db_col: # support for multicolumn values
+			resp = {x[0]:x[1:] for x in self._execute(sql,keys)}
+		else:
+			resp = dict(self._execute(sql,keys))
+		return [resp[k] if k in resp else default for k in keys]
+	
+	def count(self, tab):
+		db_tab, db_key, db_col = self._parse_tab(tab)
+		sql = f'select count(*) from "{db_tab}"'
+		sql = self._get_sql_with_cte(sql, tab)
+		return self._execute_fetchone(sql)[0]
+
+	# internal
+
+	def table(self, table, sql=''):
+		tab = TKV.table(self, table)
+		tab.tkv.cte = sql
+		return tab
+
+	def _execute_fetchone(self, sql, *a):
+		#print('SQL>',sql) # xxx
+		results = self.db.execute(sql,*a).fetchone()
+		return results
+
+	def _execute(self, sql, *a):
+		#print('SQL>',sql) # xxx
+		results = self.db.execute(sql,*a)
+		return results
+
+	def _execute_many(self, sql, *args):
+		#print('SQL>',sql)
+		results = self.db.executemany(sql, *args)
+		return results
 	
 	def _parse_tab(self, tab):
 		tab,key,col = tab.upper().split(self.sep_tab)[:3]
 		if self.sep_col in col: # support for multicolumn values
 			col = col.replace(self.sep_col,f'"{self.sep_col}"')
 		return tab,key,col
+
+	def _get_sql_with_cte(self, sql, tab):
+		db_tab, db_key, db_col = self._parse_tab(tab)
+		before = f'with "{db_tab}" as ({self.cte})' if self.cte else ''
+		return before + ' ' + sql
+	
+	def _get_placeholders(self, n):
+		return ','.join([self.placeholder]*n)
 
 
 def iter_len(iterable):
