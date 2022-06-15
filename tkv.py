@@ -1,5 +1,5 @@
 __author__ = 'Maciej Obarski'
-__version__ = '0.6.6'
+__version__ = '0.6.7'
 __license__ = 'MIT'
 
 import itertools
