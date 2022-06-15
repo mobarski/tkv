@@ -156,14 +156,14 @@ class VTKV(TKV):
 	
 	def keys(self, tab, sort=False, limit=None):
 		db_tab, db_key, db_col = self._parse_tab(tab)
-		lim = f'limit {limit}' if limit is not None else ''
+		lim = self._sql_limit(limit)
 		sql = f'select "{db_col}" from "{db_tab}" order by "{db_key}" {lim}'
 		sql = self._get_sql_with_cte(sql, tab)
 		return (x[0] for x in self._execute(sql))
 	
 	def items(self, tab, sort=False, limit=None):
 		db_tab, db_key, db_col = self._parse_tab(tab)
-		lim = f'limit {limit}' if limit is not None else ''
+		lim = self._sql_limit(limit)
 		sql = f'select "{db_key}","{db_col}" from "{db_tab}" order by "{db_key}" {lim}'
 		sql = self._get_sql_with_cte(sql, tab)
 		if self.sep_col in db_col:
