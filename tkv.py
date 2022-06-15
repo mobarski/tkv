@@ -3,6 +3,7 @@ __version__ = '0.6.6'
 __license__ = 'MIT'
 
 import itertools
+import sys
 from functools import partial
 
 class TKV:
@@ -110,6 +111,10 @@ class VTKV(TKV):
 	cte = ''
 	dumps = None # NOT USED - required for self.table
 	loads = None # NOT USED - required for self.table
+	echo = False
+	# for stage_items
+	types = {int:'bigint', float:'double', str:'text'}
+	create_table_sql_suffix = ''
 
 	# core
 
@@ -180,17 +185,17 @@ class VTKV(TKV):
 		return tab
 
 	def _execute_fetchone(self, sql, *a):
-		#print('SQL>',sql) # xxx
+		self._echo(sql)
 		results = self.db.execute(sql,*a).fetchone()
 		return results
 
 	def _execute(self, sql, *a):
-		#print('SQL>',sql) # xxx
+		self._echo(sql)
 		results = self.db.execute(sql,*a)
 		return results
 
 	def _execute_many(self, sql, *args):
-		#print('SQL>',sql)
+		self._echo(sql)
 		results = self.db.executemany(sql, *args)
 		return results
 	
@@ -208,6 +213,32 @@ class VTKV(TKV):
 	def _get_placeholders(self, n):
 		return ','.join([self.placeholder]*n)
 
+	def _echo(self, sql):
+		if self.echo:
+			print('SQL>', sql, file=sys.stderr)
+			sys.stderr.flush()
+
+	# experimental
+	
+	def stage_items(self, table, items):
+		if not items: return
+		tab,key,col = table.upper().split(self.sep_tab)[:3]
+		cols = col.split(self.sep_col)
+		#
+		types = [self.types.get(type(x),'') for x in items[0][1]]
+		key_type = self.types.get(type(items[0][0]))
+		#
+		columns = ','.join([f'"{c}" {t}' for c,t in zip(cols,types)])
+		sql = f'drop table if exists "{tab}"'
+		self._execute(sql)
+		sep = f'"{self.sep_col}"'
+		sql = f'create table "{tab}"("{key}" {key_type} primary key, {columns}) {self.create_table_sql_suffix}'
+		self._execute(sql)
+		#
+		placeholders = self._get_placeholders(len(cols)+1)
+		sql = f'insert into "{tab}" values({placeholders})'
+		flat_items = [(x[0],*x[1]) for x in items] if len(cols)>1 else items
+		self._execute_many(sql, flat_items)
 
 def iter_len(iterable):
 	cnt = 0

@@ -18,16 +18,15 @@ import tkv
 class VTKVsnowflake(tkv.VTKV):
 	placeholder = '%s'
 	
-	def __init__(self, db=None, sch=None, **kw):
+	def __init__(self, db=None, sch=None, role=None, **kw):
 		self.db = snowflake.connector.connect(**kw).cursor()
+		if role:
+			self._execute(f'use role {role}')
 		if db:
 			self._execute(f'use database {db}')
 		if sch:
 			self._execute(f'use schema {sch}')
-	
-	# experimental
 
-	# TODO stage()
 
 def connect_view(**kw):
 	return VTKVsnowflake(**kw)

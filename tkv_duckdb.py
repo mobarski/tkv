@@ -122,34 +122,11 @@ class TKVduckdbview(tkv.VTKV):
 	
 	def __init__(self, path=':memory:', **kw):
 		self.db = duckdb.connect(path, **kw)
-		self.types = {int:'int8', float:'float8',str:'text'}
-
-	# experimental
-	
-	def stage_items(self, table, items):
-		if not items: return
-		tab,key,col = table.upper().split(self.sep_tab)[:3]
-		cols = col.split(self.sep_col)
-		#
-		types = [self.types.get(type(x),'') for x in items[0][1]]
-		key_type = self.types.get(type(items[0][0]))
-		#
-		columns = ','.join([f'"{c}" {t}' for c,t in zip(cols,types)])
-		sql = f'drop table if exists "{tab}"'
-		self._execute(sql)
-		sep = f'"{self.sep_col}"'
-		sql = f'create table "{tab}"("{key}" {key_type} primary key, {columns})'
-		self._execute(sql)
-		#
-		placeholders = self._get_placeholders(len(cols)+1)
-		sql = f'insert into "{tab}" values({placeholders})'
-		flat_items = [(x[0],*x[1]) for x in items] if len(cols)>1 else items
-		self._execute_many(sql, flat_items)
 
 	# internal
 
 	def _execute(self, sql, *a):
-		#print('SQL>',sql) # xxx
+		self._echo(sql)
 		results = self.db.execute(sql,*a).fetchall()
 		return results
 

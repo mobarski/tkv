@@ -123,32 +123,6 @@ class TKVsqlitetable(tkv.TKV):
 		self._execute(sql)
 
 
-
-class TKVsqliteview(tkv.VTKV):
-	
-	def __init__(self, path=':memory:', **kw):
-		self.db = sqlite3.connect(path, **kw)
-
-	# experimental
-	
-	def stage_items(self, table, items):
-		if not items: return
-		tab,key,col = table.upper().split(self.sep_tab)[:3]
-		cols = col.split(self.sep_col)
-		#
-		columns = ','.join([f'"{c}"' for c in cols])
-		sql = f'drop table if exists "{tab}"'
-		self._execute(sql)
-		sep = f'"{self.sep_col}"'
-		sql = f'create table "{tab}"("{key}" primary key, {columns}) without rowid'
-		self._execute(sql)
-		#
-		placeholders = self._get_placeholders(len(cols)+1)
-		sql = f'insert into "{tab}" values({placeholders})'
-		flat_items = [(x[0],*x[1]) for x in items] if len(cols)>1 else items
-		self._execute_many(sql, flat_items)
-
-
 class TKVsqlitedb(tkv.TKV):
 
 	def __init__(self, path=':memory:', dumps=None, loads=None, **kw):
@@ -291,6 +265,15 @@ class TKVsqlitedb(tkv.TKV):
 	def _create(self, tab):
 		sql = f'create table if not exists "{tab}" (key text primary key, val) without rowid'
 		self._execute(sql)
+
+
+class TKVsqliteview(tkv.VTKV):
+	types = {}
+	create_table_sql_suffix = 'without rowid'
+	
+	def __init__(self, path=':memory:', **kw):
+		self.db = sqlite3.connect(path, **kw)
+
 	
 
 def connect(*a,**kw):
