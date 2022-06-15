@@ -1,8 +1,11 @@
+# ACTIVE
+
+- limit - optional argument to iterators
+
 
 # TODO
 
 ## NEXT
-
 
 - move tkv_xxx.py to tkv package (tkv.xxx)
 - reorder methods in all classes to match TKV
@@ -27,9 +30,9 @@
 
 ## TBD
 
-- limit - optional argument to iterators?
 - compression: example, api?
 - DB client configuration via single dict and not kwargs?
+
 
 # DONE
 
@@ -44,6 +47,7 @@
 - split methods with pattern into two: scan_xxx and xxx
 - split tkv into tkv and tkv_sqlite
 - move this todo list into KANBAN.md
+
 
 # REJECTED
 

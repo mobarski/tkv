@@ -18,10 +18,12 @@ import tkv
 class VTKVsnowflake(tkv.VTKV):
 	placeholder = '%s'
 	
-	def __init__(self, db=None, sch=None, role=None, **kw):
+	def __init__(self, role=None, wh=None, db=None, sch=None, **kw):
 		self.db = snowflake.connector.connect(**kw).cursor()
 		if role:
 			self._execute(f'use role {role}')
+		if wh:
+			self._execute(f'use warehouse {wh}')
 		if db:
 			self._execute(f'use database {db}')
 		if sch:
