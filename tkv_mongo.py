@@ -39,12 +39,14 @@ class TKVmongo(tkv.TKV):
 		
 	# iterators
 	
-	def keys(self, tab, sort=False):
-		docs = self.db[tab].find({},[])
+	def keys(self, tab, sort=False, limit=None):
+		# TODO: sort
+		docs = self.db[tab].find({},[]).limit(limit or 0)
 		return (x['_id'] for x in docs)
 		
-	def items(self, tab, sort=False):
-		docs = self.db[tab].find({},[])
+	def items(self, tab, sort=False, limit=None):
+		# TODO: sort
+		docs = self.db[tab].find({},[]).limit(limit or 0)
 		return ((x['_id'],x['val']) for x in docs)
 
 	# extension

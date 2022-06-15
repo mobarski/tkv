@@ -1,6 +1,5 @@
 # ACTIVE
 
-- limit - optional argument to iterators
 
 
 # TODO
@@ -36,6 +35,7 @@
 
 # DONE
 
+- limit - optional argument to iterators
 - vtkv - common sql
 - tkv_duckdb.connect_view
 - test_view.txt

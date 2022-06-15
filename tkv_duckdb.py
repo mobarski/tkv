@@ -57,13 +57,15 @@ class TKVduckdbtable(tkv.TKV):
 
 	# iterators
 
-	def keys(self, tab, sort=False):
-		sql = f'select key from "{self.tab}" where tab=? order by key'
+	def keys(self, tab, sort=False, limit=None):
+		lim = self._sql_limit(limit)
+		sql = f'select key from "{self.tab}" where tab=? order by key {lim}'
 		return (x[0] for x in self._execute(sql, (tab,)).fetchall())
 		
 		
-	def items(self, tab, sort=False):
-		sql = f'select key,val from "{self.tab}" where tab=? order by key'
+	def items(self, tab, sort=False, limit=None):
+		lim = self._sql_limit(limit)
+		sql = f'select key,val from "{self.tab}" where tab=? order by key {lim}'
 		return ((k,self.loads(v)) for k,v in self._execute(sql, (tab,)).fetchall())
 
 	def count(self, tab, sort=False):
@@ -72,12 +74,14 @@ class TKVduckdbtable(tkv.TKV):
 
 	# scanning
 
-	def scan_keys(self, tab, pattern, sort=False):
-		sql = f'select key from "{self.tab}" where tab=? and key glob ? order by key'
+	def scan_keys(self, tab, pattern, sort=False, limit=None):
+		lim = self._sql_limit(limit)
+		sql = f'select key from "{self.tab}" where tab=? and key glob ? order by key {lim}'
 		return (x[0] for x in self._execute(sql, (tab,pattern)).fetchall())
 			
-	def scan_items(self, tab, pattern, sort=False):
-		sql = f'select key,val from "{self.tab}" where tab=? and key glob ? order by key'
+	def scan_items(self, tab, pattern, sort=False, limit=None):
+		lim = self._sql_limit(limit)
+		sql = f'select key,val from "{self.tab}" where tab=? and key glob ? order by key {lim}'
 		return ((k,self.loads(v)) for k,v in self._execute(sql, (tab,pattern)).fetchall())
 
 	def scan_count(self, tab, pattern, sort=False):

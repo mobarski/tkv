@@ -10,42 +10,55 @@ class TKV:
 
 	# core - read
 	
-	def get(self, tab, key, default=None):  not_implemented(self, 'get')
-	def has(self, tab, key):                not_implemented(self, 'has')
+	def get(self, tab, key, default=None):
+		not_implemented(self, 'get')
+		
+	def has(self, tab, key):
+		not_implemented(self, 'has')
 	
 	# core - write
 	
-	def put(self, tab, key, val):           not_implemented(self, 'put')
-	def drop(self, tab):                    not_implemented(self, 'drop')
-	def delete(self, tab, key):             not_implemented(self, 'delete')
+	def put(self, tab, key, val):
+		not_implemented(self, 'put')
+		
+	def drop(self, tab):
+		not_implemented(self, 'drop')
+		
+	def delete(self, tab, key):
+		not_implemented(self, 'delete')
 	
 	# iterators
 	
-	def keys(self, tab, sort=False):        not_implemented(self, 'keys')
+	def keys(self, tab, sort=False, limit=None):
+		not_implemented(self, 'keys')
 	
-	def items(self, tab, sort=False):
-		return (self.get(tab, k) for k in self.keys(tab))
+	def items(self, tab, sort=False, limit=None):
+		return (self.get(tab, k) for k in self.keys(tab, sort, limit))
 	
-	def values(self, tab, sort=False):
-		return (v for k,v in self.items(tab, sort))
+	def values(self, tab, sort=False, limit=None):
+		return (v for k,v in self.items(tab, sort, limit))
 	
 	# scan
 	
-	def scan_keys(self, tab, pattern, sort=False):    not_implemented(self, 'scan_keys')
+	def scan_keys(self, tab, pattern, sort=False, limit=None):
+		not_implemented(self, 'scan_keys')
 	
-	def scan_items(self, tab, pattern, sort=False):
-		return ((k,self.get(tab,k)) for k in self.scan_keys(tab, pattern, sort))
+	def scan_items(self, tab, pattern, sort=False, limit=None):
+		return ((k,self.get(tab,k)) for k in self.scan_keys(tab, pattern, sort, limit))
 	
-	def scan_values(self, tab, pattern, sort=False):
-		return (v for k,v in self.scan_items(tab, pattern, sort))
+	def scan_values(self, tab, pattern, sort=False, limit=None):
+		return (v for k,v in self.scan_items(tab, pattern, sort, limit))
 		
 	def scan_count(self, tab, pattern):
 		return iter_len(self.scan_keys(tab, pattern))
 	
 	# other - read
 
-	def size(self, tab):  not_implemented(self, 'size')
-	def tables(self):     not_implemented(self, 'tables')
+	def size(self, tab):
+		not_implemented(self, 'size')
+		
+	def tables(self):
+		not_implemented(self, 'tables')
 	
 	def get_many(self, tab, keys, default=None):
 		return [self.get(tab, key, default) for key in keys]
@@ -77,7 +90,10 @@ class TKV:
 	
 	def __del__(self):
 		self.flush()
-		
+	
+	def _sql_limit(self, limit):
+		return f'limit {limit}' if limit is not None else ''
+	
 	@staticmethod
 	def group_keys(keys, pos, sep='/'):
 		return itertools.groupby(keys, lambda x:sep.join(x.split(sep)[:pos]))

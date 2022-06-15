@@ -70,6 +70,15 @@
 	True
 	>>> set(db.keys('b')) == set('rs')
 	True
+	>>> set(db.keys('a', limit=2, sort=True)) == set('xy')
+	True
+	>>> set(db.keys('b', limit=3, sort=True)) == set('rs')
+	True
+
+	>>> list(db.items('a', sort=True))
+	[('x', 1), ('y', 2), ('z', 3)]
+	>>> list(db.items('a', sort=True, limit=1))
+	[('x', 1)]
 
 	>>> db.put_many('c', ['u','v'], ['one','two'])
 	>>> db.get('c','u')
@@ -79,6 +88,8 @@
 	
 	>>> sorted(db.values('c')) == ['one','two']
 	True
+	>>> list(db.values('c', limit=1, sort=True))
+	['one']
 
 	>>> db.put_items('d', [('one',1), ('two',2), ('three',3)])
 	>>> db.get('d','one')

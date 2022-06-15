@@ -3,6 +3,7 @@
 import tkv
 import redis
 import json
+from itertools import islice
 
 class TKVredis(tkv.TKV):
 	"""Redis/SSDB/KeyDB/Ardb adapter"""
@@ -47,11 +48,20 @@ class TKVredis(tkv.TKV):
 
 	# iterators
 
-	def keys(self, tab, sort=False):
-		return [x.decode(self.encoding) for x in self.db.hkeys(tab)]
+	def keys(self, tab, sort=False, limit=None):
+		keys = self.db.hkeys(tab)
+		if sort:
+			keys = sorted(keys)
+		if limit:
+			keys = islice(keys, limit)
+		return [x.decode(self.encoding) for x in keys]
 				
-	def items(self, tab, sort=False):
+	def items(self, tab, sort=False, limit=None):
 		items = self.db.hgetall(tab)
+		if sort:
+			items = sorted(items)
+		if limit:
+			items = islice(items, limit)
 		items = ((x[0].decode(self.encoding),self.loads(x[1])) for x in items)
 		return items
 

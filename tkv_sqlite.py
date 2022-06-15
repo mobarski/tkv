@@ -53,13 +53,15 @@ class TKVsqlitetable(tkv.TKV):
 
 	# iterators
 
-	def keys(self, tab, sort=False):
-		sql = f'select key from "{self.tab}" where tab=?'
+	def keys(self, tab, sort=False, limit=None):
+		lim = self._sql_limit(limit)
+		sql = f'select key from "{self.tab}" where tab=? {lim}'
 		return (x[0] for x in self._execute(sql, (tab,)))
 		
 		
-	def items(self, tab, sort=False):
-		sql = f'select key,val from "{self.tab}" where tab=?'
+	def items(self, tab, sort=False, limit=None):
+		lim = self._sql_limit(limit)
+		sql = f'select key,val from "{self.tab}" where tab=? {lim}'
 		return ((k,self.loads(v)) for k,v in self._execute(sql, (tab,)))
 
 	def count(self, tab, sort=False):
@@ -68,12 +70,14 @@ class TKVsqlitetable(tkv.TKV):
 
 	# scanning
 
-	def scan_keys(self, tab, pattern, sort=False):
-		sql = f'select key from "{self.tab}" where tab=? and key glob ?'
+	def scan_keys(self, tab, pattern, sort=False, limit=None):
+		lim = self._sql_limit(limit)
+		sql = f'select key from "{self.tab}" where tab=? and key glob ? {lim}'
 		return (x[0] for x in self._execute(sql, (tab,pattern)))
 			
-	def scan_items(self, tab, pattern, sort=False):
-		sql = f'select key,val from "{self.tab}" where tab=? and key glob ?'
+	def scan_items(self, tab, pattern, sort=False, limit=None):
+		lim = self._sql_limit(limit)
+		sql = f'select key,val from "{self.tab}" where tab=? and key glob ? {lim}'
 		return ((k,self.loads(v)) for k,v in self._execute(sql, (tab,pattern)))
 
 	def scan_count(self, tab, pattern, sort=False):
@@ -159,31 +163,35 @@ class TKVsqlitedb(tkv.TKV):
 		except sqlite3.OperationalError:
 			return False
 
-	def keys(self, tab, sort=False):
-		sql = f'select key from "{tab}"'
+	def keys(self, tab, sort=False, limit=None):
+		lim = self._sql_limit(limit)
+		sql = f'select key from "{tab}" {lim}'
 		try:
 			return (x[0] for x in self._execute(sql))
 		except sqlite3.OperationalError:
 			return []
 		
 		
-	def items(self, tab, sort=False):
-		sql = f'select key,val from "{tab}"'
+	def items(self, tab, sort=False, limit=None):
+		lim = self._sql_limit(limit)
+		sql = f'select key,val from "{tab}" {lim}'
 		try:
 			return ((k,self.loads(v)) for k,v in self._execute(sql))
 		except sqlite3.OperationalError:
 			return []
 
-	def scan_keys(self, tab, pattern, sort=False):
-		sql = f'select key from "{tab}" where key glob "{pattern}"'
+	def scan_keys(self, tab, pattern, sort=False, limit=None):
+		lim = self._sql_limit(limit)
+		sql = f'select key from "{tab}" where key glob "{pattern}" {lim}'
 		try:
 			return (x[0] for x in self._execute(sql))
 		except sqlite3.OperationalError:
 			return []
 		
 		
-	def scan_items(self, tab, pattern, sort=False):
-		sql = f'select key,val from "{tab}" where key glob "{pattern}"'
+	def scan_items(self, tab, pattern, sort=False, limit=None):
+		lim = self._sql_limit(limit)
+		sql = f'select key,val from "{tab}" where key glob "{pattern}" {lim}'
 		try:
 			return ((k,self.loads(v)) for k,v in self._execute(sql))
 		except sqlite3.OperationalError:
