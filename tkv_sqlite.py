@@ -80,7 +80,7 @@ class TKVsqlitetable(tkv.TKV):
 		sql = f'select key,val from "{self.tab}" where tab=? and key glob ? {lim}'
 		return ((k,self.loads(v)) for k,v in self._execute(sql, (tab,pattern)))
 
-	def scan_count(self, tab, pattern, sort=False):
+	def scan_count(self, tab, pattern):
 		sql = f'select count(*) from "{self.tab}" where tab=? and key glob ?'
 		return self._execute(sql, (tab,pattern)).fetchone()[0]
 
