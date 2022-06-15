@@ -8,7 +8,7 @@
 """
 https://community.snowflake.com/s/question/0D50Z00008BDIPTSA5/snowflake-oltp
 > I am delighted to report that with the introduction of Hybrid Tables
-> (to be formally announced at our Snowflake Summit in a couple of weeks), # 2022-06-03
+> (to be formally announced at our Snowflake Summit in a couple of weeks), # 2022-06-03 -> 2022-06-19
 > Snowflake will be able to handle OLTP workloads.
 """
 
